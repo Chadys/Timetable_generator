@@ -21,7 +21,7 @@ public:
     vector<reference_wrapper<Course>> courses;
 
     Students(string lvl_, string subject_, char class_number_ = '\0', vector<reference_wrapper<Course>> courses_ = {});
-    static vector<Students> &get_students_from_file(std::map<string, Course> &all_courses, const char *file);
+    static vector<Students> get_students_and_init_courses_from_file(std::map<string, Course> &all_courses, const char *file);
 };
 
 

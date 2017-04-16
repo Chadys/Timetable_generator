@@ -12,6 +12,8 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    vector<vector<Time>> &times = Time::get_times_from_file(argv[3]);
+    vector<vector<Time>> times = Time::get_times_from_file(argv[3]);
+    std::map<string, Course> courses;
+    vector<Students> students = Students::get_students_and_init_courses_from_file(courses, argv[1]);
     return 0;
 }

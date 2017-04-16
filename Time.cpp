@@ -23,8 +23,8 @@ Time::operator bool() const{
     return *this != Time::null;
 }
 
-vector<vector<Time>> &Time::get_times_from_file(const char *file){
-    std::string line;
+vector<vector<Time>> Time::get_times_from_file(const char *file){
+    string line;
     vector<vector<Time>> times;
     std::ifstream fstream(file);
     char building;
@@ -33,9 +33,7 @@ vector<vector<Time>> &Time::get_times_from_file(const char *file){
 
     if (fstream && std::getline(fstream, line)) {
         std::istringstream sstream(line);
-        sstream >> n_days;
-        sstream >> first_hour;
-        sstream >> last_hour;
+        sstream >> n_days >> first_hour >> last_hour;
         for(unsigned int i = 0; i < n_days; i++){
             vector<Time> hours;
             for(unsigned int j = first_hour; j <= last_hour; j++)
@@ -46,8 +44,7 @@ vector<vector<Time>> &Time::get_times_from_file(const char *file){
             if(line == "")
                 continue;
             sstream = std::istringstream(line);
-            sstream >> building;
-            sstream >> number;
+            sstream >> building >> number;
             for (unsigned int i = 0; i < n_days && std::getline(fstream, line); ++i) {
                 sstream = std::istringstream(line);
                 sstream >> hour; //jump over day
