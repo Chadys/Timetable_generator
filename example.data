@@ -1,0 +1,70 @@
+/************************************* DATA FILES FORMAT *************************************/
+
+////////////////////////// classes.data //////////////////////////
+Level   Class_identifier    Subject
+Courses_number Hours_number Course_title
+...
+
+// Example :
+L1  A   Arts
+2 4 Sculpture
+2 4 Oil_painting
+1 2 Grec_mythology_study
+
+L1  B   Arts
+2 4 Sculpture
+2 4 Water_painting
+1 2 Grec_mythology_study
+
+
+////////////////////////// teachers.data //////////////////////////
+Teacher_name
+Day_number Hours_disponibility
+...
+Hours_capacity_by_course Course_name
+...
+
+// Example :
+U_Rorschach
+0 9 10
+1
+2
+3 11 12
+4
+2 Grec_mythology_study
+8 Sculpture
+
+I_Icare
+0 11 12
+1 15 16 17
+2 16 17
+3
+4
+2 Grec_mythology_study
+4 Oil_painting
+4 Water_painting
+
+
+////////////////////////// classrooms.data //////////////////////////
+Number_of_days Starting_hour Last_hour
+
+Building_identifier Room_number
+Day_number Hours_disponibility
+...
+
+// Example :
+5 9 18
+
+X 666
+0 9 10 11 12 13 14 15 16 17 18
+1 9 10 11 12 13 14 15 16 17 18
+2 13 14 15 16 17 18
+3 9 10 11 12 13 14 15 16 17
+4 10 11 13 14 15 16 17
+
+Y 042
+0 13 14 15 16
+1
+2
+3 17 18
+4

@@ -1,0 +1,11 @@
+# cmake files
+[cC][mM]ake*
+Makefile
+!CMakeLists.txt
+
+# IDE
+.idea
+
+# datafiles
+*.data
+!example.data
