@@ -12,21 +12,17 @@
 #include "Time.h"
 
 using std::vector;
+using std::map;
 using std::reference_wrapper;
 
 class Teacher {
 public:
-    struct CourseTime_qt {
-        Course &course;
-        unsigned int time_qt;
-        CourseTime_qt(Course &course_, unsigned int time_qt_);
-    };
-
     string name;
     vector<reference_wrapper<Time>> horaires;
-    vector<CourseTime_qt> courses;
+    map<string, unsigned int> courses_names;
+    static const Teacher null;
 
-    Teacher(string name_, vector<reference_wrapper<Time>> horaires_ = {}, vector<CourseTime_qt> courses_ = {});
+    Teacher(string name_, vector<reference_wrapper<Time>> horaires_ = {}, map<string, unsigned int> courses_names_ = {});
 };
 
 

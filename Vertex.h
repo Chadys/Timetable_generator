@@ -7,7 +7,6 @@
 
 
 #include <vector>
-#include <memory>
 #include "Course.h"
 #include "Students.h"
 #include "Teacher.h"
@@ -19,10 +18,10 @@ public:
     Course course;
     Students students;
     Teacher teacher;
-    vector<std::shared_ptr<Vertex>> adjacents;
+    vector<unsigned long> adjacents;
     Time time;
 
-    Vertex(Course course_, Students students_, Teacher teacher_, vector<std::shared_ptr<Vertex>> adjacents_ = {});
+    Vertex(Course course_, Students students_, Teacher teacher_, vector<unsigned long> adjacents_ = {});
 };
 
 

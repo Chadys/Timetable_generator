@@ -20,8 +20,9 @@ public:
     string title;
     unsigned short hours_number;
     COURSE_TYPE type;
-    Course();
-    Course(string title_, unsigned short hours_number_ = 4, COURSE_TYPE type_ = COURS_TP);
+    static const Course null;
+
+    Course(string title_ = "", unsigned short hours_number_ = 4, COURSE_TYPE type_ = COURS_TP);
 };
 
 

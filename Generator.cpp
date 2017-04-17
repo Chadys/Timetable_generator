@@ -10,7 +10,7 @@ Generator::Generator(char *classroom_filename, char *classes_filename, char *tea
     this->init_times_from_file(classroom_filename);
     this->init_students_and_courses_from_file(classes_filename);
     this->init_teachers_from_file(teachers_filename);
-    this->init_possible_configurations();
+    this->init_possible_configuration();
 }
 
 void Generator::init_times_from_file(const char *file){
@@ -88,12 +88,32 @@ void Generator::init_teachers_from_file(const char *file){
             while (std::getline(fstream, line) && line != ""){
                 sstream = std::istringstream(line);
                 sstream >> qt >> course_name;
-                this->all_teachers.back().courses.emplace_back(this->all_courses.at(course_name), qt);
+                this->all_teachers.back().courses_names[course_name] = qt;
             }
         };
     fstream.close();
 }
 
-void Generator::init_possible_configurations(){
+void Generator::init_possible_configuration(){
+    std::map<string, vector<Vertex>> teachers_map;
+    unsigned int first = 0, last;
 
+    for (Students &s : all_students){
+        for (Course &c : s.courses)
+            for (Teacher &t : all_teachers)
+                if (t.courses_names.find(c.title) != t.courses_names.end())
+                    teachers_map[t.name].push_back(boost::add_vertex(Possibility(c, s, t), possible_configuration));
+        // Link between all vertices having the same students
+        last = boost::num_vertices(possible_configuration);
+        for (unsigned int i = first; i < last-1; ++i)
+            for (unsigned int j = i+1; j < last; ++j)
+                boost::add_edge(i, j, possible_configuration);
+        first = last;
+    }
+    // Link between all vertices having the same teacher
+    for (auto &v : teachers_map){
+        for (unsigned int i = 0; i < v.second.size()-1; ++i)
+            for (unsigned int j = i+1; j < v.second.size(); ++j)
+                boost::add_edge(i, j, possible_configuration);
+    }
 }

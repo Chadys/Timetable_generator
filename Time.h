@@ -5,9 +5,11 @@
 #ifndef TIMETABLE_GENERATOR_TIME_H
 #define TIMETABLE_GENERATOR_TIME_H
 
+#include <functional>
 #include <vector>
 #include "Classroom.h"
 
+using std::reference_wrapper;
 using std::vector;
 
 enum DAY{

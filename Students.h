@@ -19,6 +19,7 @@ public:
     string subject;
     char class_number;
     vector<reference_wrapper<Course>> courses;
+    static const Students null;
 
     Students(string lvl_, string subject_, char class_number_ = '\0', vector<reference_wrapper<Course>> courses_ = {});
 };

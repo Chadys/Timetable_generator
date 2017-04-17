@@ -11,7 +11,7 @@
 #include "Course.h"
 #include "Students.h"
 #include "Teacher.h"
-#include "Vertex.h"
+#include "Graph.h"
 
 class Generator {
 public:
@@ -19,7 +19,7 @@ public:
     std::map<string, Course> all_courses;
     vector<Students> all_students;
     vector<Teacher> all_teachers;
-    vector<std::shared_ptr<Vertex>> possible_configurations;
+    Graph possible_configuration;
 
     Generator(char *classroom_filename, char *classes_filename, char *teachers_filename);
 
@@ -27,7 +27,7 @@ private:
     void init_times_from_file(const char *file);
     void init_students_and_courses_from_file(const char *file);
     void init_teachers_from_file(const char *file);
-    void init_possible_configurations();
+    void init_possible_configuration();
 };
 
 
