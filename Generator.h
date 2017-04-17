@@ -1,0 +1,34 @@
+//
+// Created by julie on 17/04/17.
+//
+
+#ifndef TIMETABLE_GENERATOR_GENERATOR_H
+#define TIMETABLE_GENERATOR_GENERATOR_H
+
+
+#include <map>
+#include "Time.h"
+#include "Course.h"
+#include "Students.h"
+#include "Teacher.h"
+#include "Vertex.h"
+
+class Generator {
+public:
+    vector<vector<Time>> all_times;
+    std::map<string, Course> all_courses;
+    vector<Students> all_students;
+    vector<Teacher> all_teachers;
+    vector<std::shared_ptr<Vertex>> possible_configurations;
+
+    Generator(char *classroom_filename, char *classes_filename, char *teachers_filename);
+
+private:
+    void init_times_from_file(const char *file);
+    void init_students_and_courses_from_file(const char *file);
+    void init_teachers_from_file(const char *file);
+    void init_possible_configurations();
+};
+
+
+#endif //TIMETABLE_GENERATOR_GENERATOR_H

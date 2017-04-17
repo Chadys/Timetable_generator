@@ -27,7 +27,6 @@ public:
     vector<CourseTime_qt> courses;
 
     Teacher(string name_, vector<reference_wrapper<Time>> horaires_ = {}, vector<CourseTime_qt> courses_ = {});
-    static vector<Teacher> get_teachers_from_file(std::map<string, Course> &all_courses, vector<vector<Time>> &all_times, const char *file);
 };
 
 

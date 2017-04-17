@@ -9,7 +9,6 @@
 #include "Classroom.h"
 
 using std::vector;
-using std::string;
 
 enum DAY{
     MONDAY,
@@ -33,7 +32,6 @@ public:
     bool operator==(const Time &time_) const;
     bool operator!=(const Time &time_) const;
     explicit operator bool() const;
-    static vector<vector<Time>> get_times_from_file(const char *file);
 };
 
 
