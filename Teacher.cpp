@@ -8,3 +8,7 @@ Teacher::Teacher(string name_, vector<reference_wrapper<Time>> horaires_, map<st
     name(name_), horaires(horaires_), courses_names(courses_names_) {}
 
 const Teacher Teacher::null("");
+
+bool Teacher::operator==(const Teacher& teacher_) const{
+    return this->name == teacher_.name;
+}

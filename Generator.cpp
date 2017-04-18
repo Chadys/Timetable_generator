@@ -4,6 +4,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <iostream>
 #include "Generator.h"
 
 Generator::Generator(char *classroom_filename, char *classes_filename, char *teachers_filename){
@@ -102,18 +103,18 @@ void Generator::init_possible_configuration(){
         for (Course &c : s.courses)
             for (Teacher &t : all_teachers)
                 if (t.courses_names.find(c.title) != t.courses_names.end())
-                    teachers_map[t.name].push_back(boost::add_vertex(Possibility(c, s, t), possible_configuration));
+                    teachers_map[t.name].push_back(boost::add_vertex(Possibility(c, s, t), this->possible_configuration));
         // Link between all vertices having the same students
-        last = boost::num_vertices(possible_configuration);
+        last = boost::num_vertices(this->possible_configuration);
         for (unsigned int i = first; i < last-1; ++i)
             for (unsigned int j = i+1; j < last; ++j)
-                boost::add_edge(i, j, possible_configuration);
+                boost::add_edge(i, j, this->possible_configuration);
         first = last;
     }
     // Link between all vertices having the same teacher
     for (auto &v : teachers_map){
         for (unsigned int i = 0; i < v.second.size()-1; ++i)
             for (unsigned int j = i+1; j < v.second.size(); ++j)
-                boost::add_edge(i, j, possible_configuration);
+                boost::add_edge(i, j, this->possible_configuration);
     }
 }

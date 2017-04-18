@@ -2,6 +2,8 @@
 #include <map>
 #include <functional>
 #include "Generator.h"
+#include "NRPA.h"
+#include "Timetable.h"
 
 int main(int argc, char* argv[]) {
     if (argc != 4){
@@ -11,5 +13,7 @@ int main(int argc, char* argv[]) {
     }
 
     Generator generator(argv[3], argv[1], argv[2]);
+    NRPA solver(generator);
+    Timetable table = solver.generate();
     return 0;
 }

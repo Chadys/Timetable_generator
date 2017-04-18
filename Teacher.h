@@ -23,6 +23,7 @@ public:
     static const Teacher null;
 
     Teacher(string name_, vector<reference_wrapper<Time>> horaires_ = {}, map<string, unsigned int> courses_names_ = {});
+    bool operator==(const Teacher& teacher_) const;
 };
 
 

@@ -23,6 +23,7 @@ public:
     static const Course null;
 
     Course(string title_ = "", unsigned short hours_number_ = 4, COURSE_TYPE type_ = COURS_TP);
+    bool operator==(const Course& course_) const;
 };
 
 

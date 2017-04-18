@@ -16,7 +16,7 @@
 class Generator {
 public:
     vector<vector<Time>> all_times;
-    std::map<string, Course> all_courses;
+    std::unordered_map<string, Course> all_courses;
     vector<Students> all_students;
     vector<Teacher> all_teachers;
     Graph possible_configuration;

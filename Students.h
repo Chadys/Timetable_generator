@@ -22,6 +22,7 @@ public:
     static const Students null;
 
     Students(string lvl_, string subject_, char class_number_ = '\0', vector<reference_wrapper<Course>> courses_ = {});
+    bool operator==(const Students& students_) const;
 };
 
 
