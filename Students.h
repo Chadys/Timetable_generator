@@ -8,6 +8,7 @@
 #include <functional>
 #include <vector>
 #include <map>
+#include <boost/functional/hash_fwd.hpp>
 #include "Course.h"
 
 using std::vector;
@@ -23,7 +24,6 @@ public:
 
     Students(string lvl_, string subject_, char class_number_ = '\0', vector<reference_wrapper<Course>> courses_ = {});
     bool operator==(const Students& students_) const;
+    operator std::string() const;
 };
-
-
 #endif //TIMETABLE_GENERATOR_STUDENTS_H

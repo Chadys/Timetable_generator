@@ -34,7 +34,7 @@ vector<Timetable> NRPA::generate(){
     }
     if (boost::num_vertices(this->provider.possible_configuration) != max_vertices)
         return vector<Timetable>();
-    return Timetable::get_timetables_from_graph(this->provider.possible_configuration);
+    return Timetable::get_timetables_from_graph(this->provider.possible_configuration, this->provider);
 }
 
 NRPA::sequence NRPA::playout(Vertex v, Graph &graph, unsigned int &max_vertices){
@@ -150,6 +150,6 @@ NRPA::playout_choice NRPA::random_choice(vector<playout_choice> &choices, vector
 }
 
 int NRPA::get_score(Graph &graph){
-    vector<Timetable> timetables = Timetable::get_timetables_from_graph(graph);
+    vector<Timetable> timetables = Timetable::get_timetables_from_graph(graph, this->provider);
     return Timetable::evaluate(timetables);
 }

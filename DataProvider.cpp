@@ -132,7 +132,7 @@ vector<vector<reference_wrapper<Time>>> DataProvider::get_all_possible_times(Pos
     unsigned int hours = pos.course.hours_number / pos.course.type;
     for (unsigned int i = 0; i <= pos.teacher.horaires.size()-hours ; ++i) {
         int j;
-        vector<reference_wrapper<Time>> possible_time;
+        vector<reference_wrapper<Time>> possible_time = {};
         possible_time.push_back(pos.teacher.horaires[i]);
         for (j = 1; j < hours; ++j) {
             if(pos.teacher.horaires[i+j].get().day == possible_time.back().get().day &&
@@ -149,7 +149,9 @@ vector<vector<reference_wrapper<Time>>> DataProvider::get_all_possible_times(Pos
         for (unsigned int i = 0; i < possible_times.size() - 1; ++i) {
             for (int j = i+1; j < possible_times.size(); ++j) {
                 if(std::find_first_of(possible_times[i].begin(), possible_times[i].end(),
-                                      possible_times[j].begin(), possible_times[j].end()) == possible_times[i].end()){
+                                      possible_times[j].begin(), possible_times[j].end(),
+                                      [] (const Time &t1, const Time &t2) -> bool { return t1 == t2; })
+                   == possible_times[i].end()){
                     real_possible_times.push_back(possible_times[i]);
                     possible_times.back().insert(possible_times.back().end(), possible_times[j].begin(), possible_times[j].end());
                 }

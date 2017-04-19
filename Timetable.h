@@ -7,20 +7,33 @@
 
 
 #include "Graph.h"
+#include "DataProvider.h"
 
 class Timetable {
 private:
     struct Period{
         Course &course;
         Teacher &teacher;
-    };
-    Students &students;
-    map<Time, Period> periods;
 
-    Timetable(Students students);
+        Period(Course &course_ = const_cast<Course&>(Course::null),
+               Teacher &teacher_ = const_cast<Teacher&>(Teacher::null));
+        Period& operator=(const Period& timetable_);
+    };
+    struct RefTimeComparator {
+        bool operator()(const Time& t1, const Time& t2) const {
+            return t1<t2;
+        }
+    };
+
+    Students &students;
+    map<reference_wrapper<Time>, Period, RefTimeComparator> periods;
+
 public:
-    static vector<Timetable> get_timetables_from_graph(Graph);
+    static vector<Timetable> get_timetables_from_graph(Graph &graph, DataProvider &provider);
     static int evaluate(vector<Timetable> tables);
+
+    Timetable(Students &students_ = const_cast<Students&>(Students::null));
+    Timetable& operator=(const Timetable& timetable_);
 };
 
 
