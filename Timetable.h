@@ -6,8 +6,13 @@
 #define TIMETABLE_GENERATOR_TIMETABLE_H
 
 
-class Timetable {
+#include "Graph.h"
 
+class Timetable {
+public:
+    static Timetable error;
+
+    Timetable(Graph);
 };
 
 

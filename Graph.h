@@ -17,14 +17,14 @@ struct Possibility {
     Course &course;
     Students &students;
     Teacher &teacher;
-    Time time;
+    vector<reference_wrapper<Time>> time;
     unsigned int teacher_time_left;
 
     Possibility(Course &course_ = const_cast<Course&>(Course::null),
                 Students &students_ = const_cast<Students&>(Students::null),
                 Teacher &teacher_ = const_cast<Teacher&>(Teacher::null)) :
             course(course_), students(students_), teacher(teacher_),
-            time(Time::null), teacher_time_left(teacher_.courses_names[course_.title]) {}
+            teacher_time_left(teacher_.courses_names[course_.title]) {}
 
     Possibility& operator=(const Possibility& possibility_){
         this->course = possibility_.course;

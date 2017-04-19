@@ -118,3 +118,10 @@ void Generator::init_possible_configuration(){
                 boost::add_edge(i, j, this->possible_configuration);
     }
 }
+
+unsigned int Generator::get_max_vertices(){
+    unsigned int result = 0;
+    for (Students &s : this->all_students)
+        result += s.courses.size();
+    return result;
+}

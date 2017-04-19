@@ -22,6 +22,7 @@ public:
     Graph possible_configuration;
 
     Generator(char *classroom_filename, char *classes_filename, char *teachers_filename);
+    unsigned int get_max_vertices();
 
 private:
     void init_times_from_file(const char *file);
