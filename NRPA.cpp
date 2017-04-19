@@ -95,6 +95,10 @@ void NRPA::update_graph(Vertex v, Graph &graph){
             }
         }
     }
+    for (Vertex &v : to_be_deleted){
+        boost::clear_vertex(v, graph);
+        boost::remove_vertex(v, graph);
+    }
 }
 
 NRPA::sequence NRPA::update_rollout_policy(vector<sequence> &possibilities){
