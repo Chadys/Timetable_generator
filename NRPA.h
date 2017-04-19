@@ -20,15 +20,21 @@ private:
         vector<Possibility> path;
         int score;
     };
+    struct playout_choice{
+        Vertex v;
+        Possibility pos;
+    };
 
     Generator gen;
     std::unordered_map<Possibility, double> rollout_policy;
+    std::mt19937 rand_gen;
 
-    static vector<vector<reference_wrapper<Time>>> get_all_possible_times(Possibility& pos, Graph &graph);
-    static void update_graph(Vertex& v, Graph &graph);
+    static void update_graph(Vertex v, Graph &graph);
+    static int get_score(Graph &graph);
 
-    sequence playout(Vertex& v, Graph &graph, unsigned int &max_vertices) const;
+    sequence playout(Vertex v, Graph &graph, unsigned int &max_vertices);
     sequence update_rollout_policy(vector<sequence> &possibilities);
+    playout_choice random_choice(vector<playout_choice> &choices, vector<double> &probas);
 };
 
 

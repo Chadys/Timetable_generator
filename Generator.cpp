@@ -125,3 +125,32 @@ unsigned int Generator::get_max_vertices(){
         result += s.courses.size();
     return result;
 }
+
+
+vector<vector<reference_wrapper<Time>>> Generator::get_all_possible_times(Possibility& pos, Graph &graph){
+    vector<vector<reference_wrapper<Time>>> possible_times;
+    unsigned int hours = pos.course.hours_number / pos.course.type;
+    for (unsigned int i = 0; i <= pos.teacher.horaires.size()-hours ; ++i) {
+        int j;
+        vector<reference_wrapper<Time>> possible_time;
+        possible_time.push_back(pos.teacher.horaires[i]);
+        for (j = 1; j < hours; ++j) {
+            if(pos.teacher.horaires[i+j].get().day == possible_time.back().get().day &&
+               pos.teacher.horaires[i+j].get().hour == possible_time.back().get().hour+1)
+                possible_time.push_back(pos.teacher.horaires[i+j]);
+            else
+                break;
+        }
+        if (j == hours)
+            possible_times.push_back(possible_time);
+    }
+    if (pos.course.type == COURS_TP){
+        for (unsigned int i = 0; i < possible_times.size() - 1; ++i) {
+            for (int j = i+1; j < possible_times.size(); ++j) {
+                //si rien en commun
+                possible_times[i].insert(possible_times[i].end(), possible_times[j].begin(), possible_times[j].end());
+            }
+        }
+        possible_times.pop_back(); //to les elm < 4
+    }
+}

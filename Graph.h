@@ -34,11 +34,16 @@ struct Possibility {
         this->teacher_time_left = possibility_.teacher_time_left;
     }
 
-    bool operator==(const Possibility& possibility_) const{
-        this->course == possibility_.course;
-        this->students == possibility_.students;
-        this->teacher == possibility_.teacher;
-        this->time == possibility_.time;
+    bool operator==(const Possibility& possibility_) const {
+        if (this->course == possibility_.course && this->students == possibility_.students &&
+            this->teacher == possibility_.teacher && this->time.size() == possibility_.time.size()) {
+            for (int i = 0; i < this->time.size(); ++i) {
+                if (this->time[i].get() != possibility_.time[i].get())
+                    return false;
+            }
+            return true;
+        }
+        return false;
     }
 };
 typedef boost::adjacency_list<boost::setS, boost::vecS, boost::undirectedS, Possibility> Graph;
@@ -58,8 +63,10 @@ namespace std
             boost::hash_combine(seed, pos.students.class_number);
             boost::hash_combine(seed, pos.students.subject);
             boost::hash_combine(seed, pos.teacher.name);
-            boost::hash_combine(seed, pos.time.day);
-            boost::hash_combine(seed, pos.time.hour);
+            for (Time &t: pos.time){
+                boost::hash_combine(seed, t.day);
+                boost::hash_combine(seed, t.hour);
+            }
             return seed;
         }
     };

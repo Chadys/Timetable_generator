@@ -23,6 +23,7 @@ public:
 
     Generator(char *classroom_filename, char *classes_filename, char *teachers_filename);
     unsigned int get_max_vertices();
+    static vector<vector<reference_wrapper<Time>>> get_all_possible_times(Possibility& pos, Graph &graph);
 
 private:
     void init_times_from_file(const char *file);
