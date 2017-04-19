@@ -12,7 +12,7 @@
 class NRPA {
 public:
     NRPA(Generator &gen_);
-    Timetable generate();
+    vector<Timetable> generate();
 
 private:
     struct sequence{

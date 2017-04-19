@@ -10,9 +10,8 @@
 
 class Timetable {
 public:
-    static Timetable error;
-
-    Timetable(Graph);
+    static vector<Timetable> get_timetables_from_graph(Graph);
+    static int evaluate(vector<Timetable> tables);
 };
 
 

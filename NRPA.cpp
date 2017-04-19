@@ -9,7 +9,7 @@ NRPA::NRPA(Generator &gen_) : gen(gen_) {
     this->rand_gen = std::mt19937(rd());
 }
 
-Timetable NRPA::generate(){
+vector<Timetable> NRPA::generate(){
     vector<sequence> possibilities;
     typename boost::graph_traits<Graph>::vertex_iterator it, it_end;
     unsigned int max_vertices = this->gen.get_max_vertices();
@@ -20,7 +20,7 @@ Timetable NRPA::generate(){
             vector<vector<reference_wrapper<Time>>> possible_times = Generator::get_all_possible_times(
                     this->gen.possible_configuration[*it], this->gen.possible_configuration);
             if(possible_times.empty())
-                return Timetable::error;
+                return vector<Timetable>();
             for (vector<reference_wrapper<Time>> &possible_time : possible_times){
                 Graph temp(this->gen.possible_configuration);
                 temp[*it].time = possible_time;
@@ -33,8 +33,8 @@ Timetable NRPA::generate(){
         NRPA::update_graph(best_seq.v, this->gen.possible_configuration);
     }
     if (boost::num_vertices(this->gen.possible_configuration) != max_vertices)
-        return Timetable::error;
-    return Timetable(this->gen.possible_configuration);
+        return vector<Timetable>();
+    return Timetable::get_timetables_from_graph(this->gen.possible_configuration);
 }
 
 NRPA::sequence NRPA::playout(Vertex v, Graph &graph, unsigned int &max_vertices){
@@ -150,5 +150,6 @@ NRPA::playout_choice NRPA::random_choice(vector<playout_choice> &choices, vector
 }
 
 int NRPA::get_score(Graph &graph){
-
+    vector<Timetable> timetables = Timetable::get_timetables_from_graph(graph);
+    return Timetable::evaluate(timetables);
 }
