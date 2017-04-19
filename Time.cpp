@@ -17,6 +17,10 @@ bool Time::operator!=(const Time &time_) const{
     return !(this->day == time_.day && this->hour == time_.hour);
 }
 
+bool Time::operator<(const Time &time_) const{
+    return this->day < time_.day || (this->day == time_.day && this->hour < time_.hour);
+}
+
 Time::operator bool() const{
     return *this != Time::null;
 }

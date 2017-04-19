@@ -1,7 +1,7 @@
 #include <iostream>
 #include <map>
 #include <functional>
-#include "Generator.h"
+#include "DataProvider.h"
 #include "NRPA.h"
 #include "Timetable.h"
 
@@ -12,8 +12,8 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    Generator generator(argv[3], argv[1], argv[2]);
+    DataProvider generator(argv[3], argv[1], argv[2]);
     NRPA solver(generator);
-    Timetable table = solver.generate();
+    vector<Timetable> timetables = solver.generate();
     return 0;
 }

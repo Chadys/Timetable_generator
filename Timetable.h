@@ -9,6 +9,15 @@
 #include "Graph.h"
 
 class Timetable {
+private:
+    struct Period{
+        Course &course;
+        Teacher &teacher;
+    };
+    Students &students;
+    map<Time, Period> periods;
+
+    Timetable(Students students);
 public:
     static vector<Timetable> get_timetables_from_graph(Graph);
     static int evaluate(vector<Timetable> tables);

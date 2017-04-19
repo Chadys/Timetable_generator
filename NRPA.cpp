@@ -4,7 +4,7 @@
 
 #include "NRPA.h"
 
-NRPA::NRPA(Generator &gen_) : gen(gen_) {
+NRPA::NRPA(DataProvider &gen_) : provider(gen_) {
     std::random_device rd;
     this->rand_gen = std::mt19937(rd());
 }
@@ -12,29 +12,29 @@ NRPA::NRPA(Generator &gen_) : gen(gen_) {
 vector<Timetable> NRPA::generate(){
     vector<sequence> possibilities;
     typename boost::graph_traits<Graph>::vertex_iterator it, it_end;
-    unsigned int max_vertices = this->gen.get_max_vertices();
-    while(boost::num_vertices(this->gen.possible_configuration) > max_vertices){
-        for (boost::tie(it, it_end) = boost::vertices(this->gen.possible_configuration) ;it != it_end ; it++){
-            if(!this->gen.possible_configuration[*it].time.empty())
+    unsigned int max_vertices = this->provider.get_max_vertices();
+    while(boost::num_vertices(this->provider.possible_configuration) > max_vertices){
+        for (boost::tie(it, it_end) = boost::vertices(this->provider.possible_configuration) ;it != it_end ; it++){
+            if(!this->provider.possible_configuration[*it].time.empty())
                 continue;
-            vector<vector<reference_wrapper<Time>>> possible_times = Generator::get_all_possible_times(
-                    this->gen.possible_configuration[*it], this->gen.possible_configuration);
+            vector<vector<reference_wrapper<Time>>> possible_times = DataProvider::get_all_possible_times(
+                    this->provider.possible_configuration[*it], this->provider.possible_configuration);
             if(possible_times.empty())
                 return vector<Timetable>();
             for (vector<reference_wrapper<Time>> &possible_time : possible_times){
-                Graph temp(this->gen.possible_configuration);
+                Graph temp(this->provider.possible_configuration);
                 temp[*it].time = possible_time;
                 possibilities.push_back(this->playout(*it, temp, max_vertices));
             }
         }
         sequence best_seq = this->update_rollout_policy(possibilities);
         possibilities.clear();
-        this->gen.possible_configuration[best_seq.v].time = best_seq.path.front().time;
-        NRPA::update_graph(best_seq.v, this->gen.possible_configuration);
+        this->provider.possible_configuration[best_seq.v].time = best_seq.path.front().time;
+        NRPA::update_graph(best_seq.v, this->provider.possible_configuration);
     }
-    if (boost::num_vertices(this->gen.possible_configuration) != max_vertices)
+    if (boost::num_vertices(this->provider.possible_configuration) != max_vertices)
         return vector<Timetable>();
-    return Timetable::get_timetables_from_graph(this->gen.possible_configuration);
+    return Timetable::get_timetables_from_graph(this->provider.possible_configuration);
 }
 
 NRPA::sequence NRPA::playout(Vertex v, Graph &graph, unsigned int &max_vertices){
@@ -52,7 +52,7 @@ NRPA::sequence NRPA::playout(Vertex v, Graph &graph, unsigned int &max_vertices)
             if(!graph[*it].time.empty())
                 continue;
             vector<vector<reference_wrapper<Time>>> possible_times =
-                    Generator::get_all_possible_times(graph[*it], graph);
+                    DataProvider::get_all_possible_times(graph[*it], graph);
             if(possible_times.empty()) {
                 seq.score  = INT_MIN;
                 return seq;

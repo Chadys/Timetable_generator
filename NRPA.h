@@ -6,12 +6,12 @@
 #define TIMETABLE_GENERATOR_NRPA_H
 
 
-#include "Generator.h"
+#include "DataProvider.h"
 #include "Timetable.h"
 
 class NRPA {
 public:
-    NRPA(Generator &gen_);
+    NRPA(DataProvider &gen_);
     vector<Timetable> generate();
 
 private:
@@ -25,7 +25,7 @@ private:
         Possibility pos;
     };
 
-    Generator gen;
+    DataProvider provider;
     std::unordered_map<Possibility, double> rollout_policy;
     std::mt19937 rand_gen;
 

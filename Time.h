@@ -33,6 +33,7 @@ public:
     Time(DAY day_, unsigned short hour_, vector<Classroom> classrooms_ = {});
     bool operator==(const Time &time_) const;
     bool operator!=(const Time &time_) const;
+    bool operator<(const Time &time_) const;
     explicit operator bool() const;
 };
 
