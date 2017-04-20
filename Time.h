@@ -5,11 +5,9 @@
 #ifndef TIMETABLE_GENERATOR_TIME_H
 #define TIMETABLE_GENERATOR_TIME_H
 
-#include <functional>
 #include <vector>
 #include "Classroom.h"
 
-using std::reference_wrapper;
 using std::vector;
 
 enum DAY{
@@ -37,5 +35,13 @@ public:
     explicit operator bool() const;
 };
 
+struct TimeAccessor{
+    DAY day;
+    unsigned short hour;
+    TimeAccessor(DAY day_ = SUNDAY, unsigned short hour_ = 0);
+    explicit operator bool() const;
+    bool operator==(const TimeAccessor &time_) const;
+    bool operator<(const TimeAccessor &time_) const;
+};
 
 #endif //TIMETABLE_GENERATOR_TIME_H

@@ -34,24 +34,25 @@ vector<Timetable> Timetable::get_timetables_from_graph(Graph &graph, DataProvide
     return timetables_vec;
 }
 
-int Timetable::evaluate(vector<Timetable> tables){
+int Timetable::evaluate(vector<Timetable> tables, DataProvider &provider){
     int score = 0;
     unsigned short used_days = 0;
+    unsigned short first_hour = provider.all_times.front().front().hour;
     for (const Timetable &t : tables){
-        Time last_time = Time::null;
+        TimeAccessor last_time;
         Period last_period;
         for (auto &kv : t.periods){
             if(last_time){
-                if (last_time.day != kv.first.get().day)
+                if (last_time.day != kv.first.day)
                     used_days++;
                 else{
                     //if free period
-                    if(kv.first.get().hour - last_time.hour > 1){
+                    if(kv.first.hour - last_time.hour > 1){
                         //lunch time
-                        if(last_time.hour < 12 || kv.first.get().hour > 13)
+                        if(last_time.hour+first_hour < 12 || kv.first.hour+first_hour > 13)
                             score+=10;
                         else
-                            score-=3*(kv.first.get().hour - last_time.hour);
+                            score-=3*(kv.first.hour - last_time.hour);
                     }
                     //TODO : in else, lower score if classrooms !=
                 }

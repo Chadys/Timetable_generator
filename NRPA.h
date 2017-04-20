@@ -8,27 +8,30 @@
 
 #include "DataProvider.h"
 #include "Timetable.h"
+#include "Graph.h"
 
 class NRPA {
 public:
-    NRPA(DataProvider &gen_);
+    NRPA(DataProvider &provider_);
     vector<Timetable> generate();
 
 private:
     struct sequence{
         Vertex v;
-        vector<Possibility> path;
+        vector<GraphProperty> path;
         int score;
     };
     struct playout_choice{
         Vertex v;
-        Possibility pos;
+        GraphProperty pos;
     };
 
-    DataProvider provider;
-    std::unordered_map<Possibility, double> rollout_policy;
+    DataProvider &provider;
+    std::unordered_map<GraphProperty, double> rollout_policy;
     std::mt19937 rand_gen;
+    Graph possible_configuration;
 
+    void init_possible_configuration();
     static void update_graph(Vertex v, Graph &graph);
     int get_score(Graph &graph);
     sequence playout(Vertex v, Graph &graph, unsigned int &max_vertices);

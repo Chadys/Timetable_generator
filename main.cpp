@@ -12,8 +12,9 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    DataProvider generator(argv[3], argv[1], argv[2]);
-    NRPA solver(generator);
+    DataProvider provider;
+    provider.init(argv[3], argv[1], argv[2]);
+    NRPA solver(provider);
     vector<Timetable> timetables = solver.generate();
     return 0;
 }

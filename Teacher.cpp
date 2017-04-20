@@ -4,8 +4,8 @@
 
 #include "Teacher.h"
 
-Teacher::Teacher(string name_, vector<reference_wrapper<Time>> horaires_, map<string, unsigned int> courses_names_) :
-    name(name_), horaires(horaires_), courses_names(courses_names_) {}
+Teacher::Teacher(string name_, vector<TimeAccessor> horaires_, map<string, unsigned int> time_by_course_) :
+    name(name_), horaires(horaires_), time_by_course(time_by_course_) {}
 
 const Teacher Teacher::null("");
 

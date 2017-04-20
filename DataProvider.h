@@ -6,30 +6,25 @@
 #define TIMETABLE_GENERATOR_GENERATOR_H
 
 
-#include <map>
+#include <unordered_map>
 #include "Time.h"
 #include "Course.h"
 #include "Students.h"
 #include "Teacher.h"
-#include "Graph.h"
 
 class DataProvider {
 public:
     vector<vector<Time>> all_times;
     std::unordered_map<string, Course> all_courses;
-    vector<Students> all_students;
-    vector<Teacher> all_teachers;
-    Graph possible_configuration;
+    std::unordered_map<string, Students> all_students;
+    std::unordered_map<string, Teacher> all_teachers;
 
-    DataProvider(char *classroom_filename, char *classes_filename, char *teachers_filename);
-    unsigned int get_max_vertices();
-    static vector<vector<reference_wrapper<Time>>> get_all_possible_times(Possibility& pos, Graph &graph);
+    void init(char *classroom_filename, char *classes_filename, char *teachers_filename);
 
 private:
     void init_times_from_file(const char *file);
     void init_students_and_courses_from_file(const char *file);
     void init_teachers_from_file(const char *file);
-    void init_possible_configuration();
 };
 
 

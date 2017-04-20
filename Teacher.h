@@ -5,7 +5,6 @@
 #ifndef TIMETABLE_GENERATOR_TEACHER_H
 #define TIMETABLE_GENERATOR_TEACHER_H
 
-#include <functional>
 #include <vector>
 #include <map>
 #include "Course.h"
@@ -13,16 +12,15 @@
 
 using std::vector;
 using std::map;
-using std::reference_wrapper;
 
 class Teacher {
 public:
     string name;
-    vector<reference_wrapper<Time>> horaires;
-    map<string, unsigned int> courses_names;
+    vector<TimeAccessor> horaires;
+    map<string, unsigned int> time_by_course;
     static const Teacher null;
 
-    Teacher(string name_, vector<reference_wrapper<Time>> horaires_ = {}, map<string, unsigned int> courses_names_ = {});
+    Teacher(string name_="", vector<TimeAccessor> horaires_ = {}, map<string, unsigned int> time_by_course_ = {});
     bool operator==(const Teacher& teacher_) const;
 };
 
