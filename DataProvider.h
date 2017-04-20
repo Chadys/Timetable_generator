@@ -6,6 +6,7 @@
 #define TIMETABLE_GENERATOR_GENERATOR_H
 
 
+#include <memory>
 #include <unordered_map>
 #include "Time.h"
 #include "Course.h"
@@ -15,9 +16,9 @@
 class DataProvider {
 public:
     vector<vector<Time>> all_times;
-    std::unordered_map<string, Course> all_courses;
-    std::unordered_map<string, Students> all_students;
-    std::unordered_map<string, Teacher> all_teachers;
+    std::unordered_map<string, std::shared_ptr<Course>> all_courses;
+    std::unordered_map<string, std::shared_ptr<Students>> all_students;
+    std::unordered_map<string, std::shared_ptr<Teacher>> all_teachers;
 
     void init(char *classroom_filename, char *classes_filename, char *teachers_filename);
 

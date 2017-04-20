@@ -26,7 +26,6 @@ public:
     unsigned short hour;
     vector<Classroom> classrooms;
     unsigned short courses_number;
-    static const Time null;
 
     Time(DAY day_, unsigned short hour_, vector<Classroom> classrooms_ = {});
     bool operator==(const Time &time_) const;

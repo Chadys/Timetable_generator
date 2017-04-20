@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <boost/functional/hash_fwd.hpp>
+#include <boost/shared_ptr.hpp>
 #include "Course.h"
 
 using std::vector;
@@ -17,10 +18,9 @@ public:
     string lvl;
     string subject;
     char class_number;
-    vector<string> courses;
-    static const Students null;
+    vector<std::shared_ptr<Course>> courses;
 
-    Students(string lvl_="", string subject_="", char class_number_ = '\0', vector<string> courses_ = {});
+    Students(string lvl_="", string subject_="", char class_number_ = '\0', vector<std::shared_ptr<Course>> courses_ = {});
     bool operator==(const Students& students_) const;
     operator std::string() const;
 };

@@ -12,18 +12,13 @@
 
 class GraphProperty {
 public:
-    Course &course;
-    Students &students;
-    Teacher &teacher;
+    std::shared_ptr<Course> course;
+    std::shared_ptr<Students> students;
+    std::shared_ptr<Teacher> teacher;
     vector<TimeAccessor> time;
     unsigned int teacher_time_left;
-    static DataProvider &provider;
 
-    GraphProperty(Course &course_ = const_cast<Course&>(Course::null),
-                Students &students_ = const_cast<Students&>(Students::null),
-                Teacher &teacher_ = const_cast<Teacher&>(Teacher::null));
-
-    GraphProperty& operator=(const GraphProperty& possibility_);
+    GraphProperty(std::shared_ptr<Course> course_ = nullptr, std::shared_ptr<Students> students_ = nullptr, std::shared_ptr<Teacher> teacher_ = nullptr);
 
     bool operator==(const GraphProperty& possibility_) const;
 };
@@ -35,11 +30,11 @@ namespace std
     {
         size_t operator()( const GraphProperty& pos) const {
             std::size_t seed = 0;
-            boost::hash_combine(seed, pos.course.title);
-            boost::hash_combine(seed, pos.students.lvl);
-            boost::hash_combine(seed, pos.students.class_number);
-            boost::hash_combine(seed, pos.students.subject);
-            boost::hash_combine(seed, pos.teacher.name);
+            boost::hash_combine(seed, pos.course->title);
+            boost::hash_combine(seed, pos.students->lvl);
+            boost::hash_combine(seed, pos.students->class_number);
+            boost::hash_combine(seed, pos.students->subject);
+            boost::hash_combine(seed, pos.teacher->name);
             for (const TimeAccessor &t: pos.time){
                 boost::hash_combine(seed, t.day);
                 boost::hash_combine(seed, t.hour);

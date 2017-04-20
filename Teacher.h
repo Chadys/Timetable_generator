@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <map>
+#include <memory>
 #include "Course.h"
 #include "Time.h"
 
@@ -17,10 +18,9 @@ class Teacher {
 public:
     string name;
     vector<TimeAccessor> horaires;
-    map<string, unsigned int> time_by_course;
-    static const Teacher null;
+    map<std::shared_ptr<Course>, unsigned int> time_by_course;
 
-    Teacher(string name_="", vector<TimeAccessor> horaires_ = {}, map<string, unsigned int> time_by_course_ = {});
+    Teacher(string name_="", vector<TimeAccessor> horaires_ = {}, map<std::shared_ptr<Course>, unsigned int> time_by_course_ = {});
     bool operator==(const Teacher& teacher_) const;
 };
 

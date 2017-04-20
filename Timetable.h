@@ -12,23 +12,20 @@
 class Timetable {
 private:
     struct Period{
-        Course &course;
-        Teacher &teacher;
+        std::shared_ptr<Course> course;
+        std::shared_ptr<Teacher> teacher;
 
-        Period(Course &course_ = const_cast<Course&>(Course::null),
-               Teacher &teacher_ = const_cast<Teacher&>(Teacher::null));
-        Period& operator=(const Period& timetable_);
+        Period(std::shared_ptr<Course> course_ = nullptr, std::shared_ptr<Teacher> teacher_ = nullptr);
     };
 
-    Students &students;
+    std::shared_ptr<Students>  students;
     map<TimeAccessor, Period> periods;
 
 public:
     static vector<Timetable> get_timetables_from_graph(Graph &graph, DataProvider &provider);
     static int evaluate(vector<Timetable> tables, DataProvider &provider);
 
-    Timetable(Students &students_ = const_cast<Students&>(Students::null));
-    Timetable& operator=(const Timetable& timetable_);
+    Timetable(std::shared_ptr<Students> students_ = nullptr);
 };
 
 

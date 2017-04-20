@@ -15,10 +15,11 @@ void NRPA::init_possible_configuration(){
     unsigned int first = 0, last;
 
     for (auto &s : this->provider.all_students){
-        for (string &c : s.second.courses)
+        for (std::shared_ptr<Course> &c : s.second->courses)
             for (auto &t : this->provider.all_teachers)
-                if (t.second.time_by_course.find(c) != t.second.time_by_course.end())
-                    teachers_map[t.second.name].push_back(boost::add_vertex(GraphProperty(this->provider.all_courses[c], s.second, t.second), this->possible_configuration));
+                if (t.second->time_by_course.find(c) != t.second->time_by_course.end())
+                    teachers_map[t.second->name].push_back(boost::add_vertex(GraphProperty(c, s.second, t.second),
+                                                                             this->possible_configuration));
         // Link between all vertices having the same students
         last = boost::num_vertices(this->possible_configuration);
         for (unsigned int i = first; i < last-1; ++i)
@@ -106,7 +107,7 @@ void NRPA::update_graph(Vertex v, Graph &graph){
     // delete adjacent vertices with same course and sames students
     // update teacher hours for this class in adjacent vertices
     // delete it if teacher doesn't have anymore hours
-    graph[v].teacher_time_left -= graph[v].course.hours_number;
+    graph[v].teacher_time_left -= graph[v].course->hours_number;
     vector<Vertex> to_be_deleted; //because of iterator invalidation
     for (auto pair_it = boost::adjacent_vertices(v, graph); pair_it.first != pair_it.second ; ++pair_it.first) {
         if(graph[*pair_it.first].course == graph[v].course){

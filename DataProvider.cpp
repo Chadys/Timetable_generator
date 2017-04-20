@@ -55,14 +55,14 @@ void DataProvider::init_students_and_courses_from_file(const char *file){
         while(std::getline(fstream, line)) {
             std::istringstream sstream(line);
             sstream >> lvl >> class_number >> subject;
-            Students s(lvl, subject, class_number);
-            this->all_students[static_cast<string>(s)] = s;
+            string s_name = subject+' '+lvl+' '+class_number;
+            this->all_students.emplace(s_name, std::make_shared<Students>(lvl, subject, class_number));
             while (std::getline(fstream, line) && line != ""){
                 sstream = std::istringstream(line);
                 sstream >> type >> hours_number >> title;
                 if(all_courses.find(title) == all_courses.end())
-                    all_courses[title] = Course(title, hours_number, static_cast<COURSE_TYPE >(type));
-                this->all_students[static_cast<string>(s)].courses.push_back(title);
+                    all_courses.emplace(title, std::make_shared<Course>(title, hours_number, static_cast<COURSE_TYPE >(type)));
+                this->all_students[s_name]->courses.push_back(all_courses[title]);
             }
         };
     fstream.close();
@@ -78,18 +78,18 @@ void DataProvider::init_teachers_from_file(const char *file){
         while(std::getline(fstream, line)) {
             std::istringstream sstream(line);
             sstream >> name;
-            this->all_teachers.emplace(name, Teacher(name));
+            this->all_teachers.emplace(name, std::make_shared<Teacher>(name));
             for (unsigned short i = 0; i < this->all_times.size(); ++i) {
                 std::getline(fstream, line);
                 sstream = std::istringstream(line);
                 sstream >> hour;
                 while (sstream >> hour)
-                    this->all_teachers[name].horaires.emplace_back(static_cast<DAY>(i), hour-first_hour);
+                    this->all_teachers[name]->horaires.emplace_back(static_cast<DAY>(i), hour-first_hour);
             }
             while (std::getline(fstream, line) && line != ""){
                 sstream = std::istringstream(line);
                 sstream >> qt >> course_name;
-                this->all_teachers[name].time_by_course[course_name] = qt;
+                this->all_teachers[name]->time_by_course[this->all_courses[course_name]] = qt;
             }
         };
     fstream.close();

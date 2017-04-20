@@ -7,8 +7,6 @@
 Course::Course(string title_, unsigned short hours_number_, COURSE_TYPE type_) :
         title(title_), hours_number(hours_number_), type(type_) {}
 
-const Course Course::null("", 0, UNITAIRE);
-
 bool Course::operator==(const Course& course_) const{
     return this->title == course_.title;
 }
