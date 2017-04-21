@@ -38,11 +38,16 @@ void NRPA::init_possible_configuration(){
 vector<Timetable> NRPA::generate(){
     vector<sequence> possibilities;
     typename boost::graph_traits<Graph>::vertex_iterator it, it_end;
+    unsigned int times_added = 0;
     unsigned int max_vertices = GraphFonc::get_max_vertices(this->possible_configuration, this->provider);
-    while(boost::num_vertices(this->possible_configuration) > max_vertices){
+
+    while(times_added < boost::num_vertices(this->possible_configuration)){
+        times_added = 0;
         for (boost::tie(it, it_end) = boost::vertices(this->possible_configuration) ;it != it_end ; it++){
-            if(!this->possible_configuration[*it].time.empty())
+            if(!this->possible_configuration[*it].time.empty()) {
+                times_added++;
                 continue;
+            }
             vector<vector<TimeAccessor>> possible_times = GraphFonc::get_all_possible_times(
                     this->possible_configuration[*it], this->possible_configuration);
             if(possible_times.empty())
@@ -71,12 +76,16 @@ NRPA::sequence NRPA::playout(Vertex v, Graph &graph, unsigned int &max_vertices)
     vector<playout_choice> playout_choices;
     vector<double> probas;
     playout_choice next_mod;
+    unsigned int times_added = 0;
     typename boost::graph_traits<Graph>::vertex_iterator it, it_end;
 
-    while(boost::num_vertices(graph) > max_vertices){
+    while(boost::num_vertices(graph) > times_added){
+        times_added = 0;
         for (boost::tie(it, it_end) = boost::vertices(graph) ;it != it_end ; it++){
-            if(!graph[*it].time.empty())
+            if(!graph[*it].time.empty()) {
+                times_added++;
                 continue;
+            }
             vector<vector<TimeAccessor>> possible_times =
                     GraphFonc::get_all_possible_times(graph[*it], graph);
             if(possible_times.empty()) {
