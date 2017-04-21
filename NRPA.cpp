@@ -12,7 +12,7 @@ NRPA::NRPA(DataProvider &provider_) : provider(provider_) {
 
 void NRPA::init_possible_configuration(){
     std::map<string, vector<Vertex>> teachers_map;
-    auto first = boost::vertices(this->possible_configuration).first, last = first;
+    unsigned int first = 0, last;
 
     for (auto &s : this->provider.all_students){
         for (std::shared_ptr<Course> &c : s.second->courses)
@@ -21,10 +21,12 @@ void NRPA::init_possible_configuration(){
                     teachers_map[t.second->name].push_back(
                             boost::add_vertex(GraphProperty(c, s.second, t.second), this->possible_configuration));
         // Link between all vertices having the same students
-        last = boost::vertices(this->possible_configuration).second;
-        for (auto i = first; i != last; ++i)
-            for (auto j = std::next(i,1); j != last; ++j)
-                boost::add_edge(*i, *j, this->possible_configuration);
+        last = boost::num_vertices(this->possible_configuration);
+        for (unsigned int i = first; i < last-1; ++i)
+            for (unsigned int j = i+1; j < last; ++j) {
+                auto it = boost::vertices(this->possible_configuration).first;
+                boost::add_edge(*std::next(it,i), *std::next(it,j), this->possible_configuration);
+            };
         first = last;
     }
     // Link between all vertices having the same teacher
@@ -121,20 +123,23 @@ void NRPA::update_graph(Vertex v, Graph &graph){
     graph[v].teacher_time_left -= graph[v].course->hours_number;
     vector<Vertex> to_be_deleted; //because of iterator invalidation
     for (auto pair_it = boost::adjacent_vertices(v, graph); pair_it.first != pair_it.second ; ++pair_it.first) {
-        if(graph[*pair_it.first].course == graph[v].course){
-            if (graph[*pair_it.first].students == graph[v].students)
+        if (graph[*pair_it.first].students == graph[v].students){
+            //teacher already chosen for that course
+            //or disallow having the same teacher in different subjects
+            if(graph[*pair_it.first].course == graph[v].course || graph[*pair_it.first].teacher == graph[v].teacher)
                 to_be_deleted.push_back(*pair_it.first);
-            else if (graph[*pair_it.first].teacher == graph[v].teacher){
-                if(!graph[v].teacher_time_left)
-                    to_be_deleted.push_back(*pair_it.first);
-                else
-                    graph[*pair_it.first].teacher_time_left = graph[v].teacher_time_left;
-            }
+        }
+            //teacher can't exceed their allotted hours for one course
+        else if (graph[*pair_it.first].teacher == graph[v].teacher && graph[*pair_it.first].course == graph[v].course){
+            if(!graph[v].teacher_time_left)
+                to_be_deleted.push_back(*pair_it.first);
+            else
+                graph[*pair_it.first].teacher_time_left = graph[v].teacher_time_left;
         }
     }
-    for (Vertex &v : to_be_deleted){
-        boost::clear_vertex(v, graph);
-        boost::remove_vertex(v, graph);
+    for (Vertex &v_del : to_be_deleted){
+        boost::clear_vertex(v_del, graph);
+        boost::remove_vertex(v_del, graph);
     }
 }
 
