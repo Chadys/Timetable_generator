@@ -15,7 +15,8 @@ private:
         std::shared_ptr<Course> course;
         std::shared_ptr<Teacher> teacher;
 
-        Period(std::shared_ptr<Course> course_ = nullptr, std::shared_ptr<Teacher> teacher_ = nullptr);
+        Period(std::shared_ptr<Course> course_ = std::shared_ptr<Course>(),
+               std::shared_ptr<Teacher> teacher_ = std::shared_ptr<Teacher>());
     };
 
     std::shared_ptr<Students>  students;
@@ -25,7 +26,7 @@ public:
     static vector<Timetable> get_timetables_from_graph(Graph &graph, DataProvider &provider);
     static int evaluate(vector<Timetable> tables, DataProvider &provider);
 
-    Timetable(std::shared_ptr<Students> students_ = nullptr);
+    Timetable(std::shared_ptr<Students> students_ = std::shared_ptr<Students>());
 };
 
 

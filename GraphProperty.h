@@ -18,7 +18,9 @@ public:
     vector<TimeAccessor> time;
     unsigned int teacher_time_left;
 
-    GraphProperty(std::shared_ptr<Course> course_ = nullptr, std::shared_ptr<Students> students_ = nullptr, std::shared_ptr<Teacher> teacher_ = nullptr);
+    GraphProperty(std::shared_ptr<Course> course_ = std::shared_ptr<Course>(),
+                  std::shared_ptr<Students> students_ = std::shared_ptr<Students>(),
+                  std::shared_ptr<Teacher> teacher_ = std::shared_ptr<Teacher>());
 
     bool operator==(const GraphProperty& possibility_) const;
 };
