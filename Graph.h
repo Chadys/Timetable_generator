@@ -19,6 +19,6 @@ typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
 namespace GraphFonc{
     vector<vector<TimeAccessor>> get_all_possible_times(GraphProperty& pos, Graph &graph);
     unsigned int get_max_vertices(Graph &graph, DataProvider &provider);
-
+    void print_graph(const Graph &g);
 }
 #endif //TIMETABLE_GENERATOR_GRAPH_H

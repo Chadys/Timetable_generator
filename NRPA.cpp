@@ -129,9 +129,9 @@ void NRPA::update_graph(Vertex v, Graph &graph){
             if(graph[*pair_it.first].course == graph[v].course || graph[*pair_it.first].teacher == graph[v].teacher)
                 to_be_deleted.push_back(*pair_it.first);
         }
-            //teacher can't exceed their allotted hours for one course
+        //teacher can't exceed their allotted hours for one course
         else if (graph[*pair_it.first].teacher == graph[v].teacher && graph[*pair_it.first].course == graph[v].course){
-            if(!graph[v].teacher_time_left)
+            if(!graph[v].teacher_time_left && graph[*pair_it.first].time.empty())
                 to_be_deleted.push_back(*pair_it.first);
             else
                 graph[*pair_it.first].teacher_time_left = graph[v].teacher_time_left;

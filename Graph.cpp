@@ -2,6 +2,7 @@
 // Created by julie on 20/04/17.
 //
 
+#include <iostream>
 #include "Graph.h"
 
 namespace GraphFonc {
@@ -46,5 +47,12 @@ namespace GraphFonc {
         for (const auto &s : provider.all_students)
             result += s.second->courses.size();
         return result;
+    }
+
+    void print_graph(const Graph &g){
+        typename boost::graph_traits<Graph>::vertex_iterator it, it_end;
+        for (boost::tie(it, it_end) = boost::vertices(g) ; it != it_end ; it++ )
+            std::cout << ((string)*g[*it].students) << " " << g[*it].course->title << ' ' << g[*it].teacher->name << std::endl;
+        std::cout << std::endl << std::endl;
     }
 }
