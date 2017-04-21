@@ -18,8 +18,8 @@ void NRPA::init_possible_configuration(){
         for (std::shared_ptr<Course> &c : s.second->courses)
             for (auto &t : this->provider.all_teachers)
                 if (t.second->time_by_course.find(c) != t.second->time_by_course.end())
-                    teachers_map[t.second->name].push_back(boost::add_vertex(GraphProperty(c, s.second, t.second),
-                                                                             this->possible_configuration));
+                    teachers_map[t.second->name].push_back(
+                            boost::add_vertex(GraphProperty(c, s.second, t.second), this->possible_configuration));
         // Link between all vertices having the same students
         last = boost::num_vertices(this->possible_configuration);
         for (unsigned int i = first; i < last-1; ++i)
@@ -38,72 +38,69 @@ void NRPA::init_possible_configuration(){
 vector<Timetable> NRPA::generate(){
     vector<sequence> possibilities;
     typename boost::graph_traits<Graph>::vertex_iterator it, it_end;
-    unsigned int times_added = 0;
-    unsigned int max_vertices = GraphFonc::get_max_vertices(this->possible_configuration, this->provider);
+    boost::tie(it, it_end) = boost::vertices(this->possible_configuration);
+    std::unordered_set<Vertex> to_be_processed(it, it_end);
 
-    while(times_added < boost::num_vertices(this->possible_configuration)){
-        times_added = 0;
-        for (boost::tie(it, it_end) = boost::vertices(this->possible_configuration) ;it != it_end ; it++){
-            if(!this->possible_configuration[*it].time.empty()) {
-                times_added++;
+    while(to_be_processed.size()){
+        for (const Vertex &v : to_be_processed){
+            if(!this->possible_configuration[v].time.empty())
                 continue;
-            }
             vector<vector<TimeAccessor>> possible_times = GraphFonc::get_all_possible_times(
-                    this->possible_configuration[*it], this->possible_configuration);
+                    this->possible_configuration[v], this->possible_configuration);
             if(possible_times.empty())
                 return vector<Timetable>();
             for (vector<TimeAccessor> &possible_time : possible_times){
                 Graph temp(this->possible_configuration);
-                temp[*it].time = possible_time;
-                possibilities.push_back(this->playout(*it, temp, max_vertices));
+                temp[v].time = possible_time;
+                possibilities.push_back(this->playout(v, temp));
             }
         }
         sequence best_seq = this->update_rollout_policy(possibilities);
         possibilities.clear();
         this->possible_configuration[best_seq.v].time = best_seq.path.front().time;
-        NRPA::update_graph(best_seq.v, this->possible_configuration);
+        to_be_processed.erase(best_seq.v);
+        NRPA::update_graph(best_seq.v, this->possible_configuration, to_be_processed);
     }
-    if (boost::num_vertices(this->possible_configuration) != max_vertices)
+    if (boost::num_vertices(this->possible_configuration) <
+            GraphFonc::get_max_vertices(this->possible_configuration, this->provider))
         return vector<Timetable>();
     return Timetable::get_timetables_from_graph(this->possible_configuration, this->provider);
 }
 
-NRPA::sequence NRPA::playout(Vertex v, Graph &graph, unsigned int &max_vertices){
+NRPA::sequence NRPA::playout(Vertex v, Graph &graph){
     sequence seq;
     seq.v = v;
     seq.path.push_back(graph[v]);
-    NRPA::update_graph(v, graph);
     vector<playout_choice> playout_choices;
     vector<double> probas;
     playout_choice next_mod;
-    unsigned int times_added = 0;
     typename boost::graph_traits<Graph>::vertex_iterator it, it_end;
+    boost::tie(it, it_end) = boost::vertices(graph);
+    std::unordered_set<Vertex> to_be_processed(it, it_end);
 
-    while(boost::num_vertices(graph) > times_added){
-        times_added = 0;
-        for (boost::tie(it, it_end) = boost::vertices(graph) ;it != it_end ; it++){
-            if(!graph[*it].time.empty()) {
-                times_added++;
+    while(to_be_processed.size()){
+        for (const Vertex &v : to_be_processed){
+            if(!graph[v].time.empty())
                 continue;
-            }
             vector<vector<TimeAccessor>> possible_times =
-                    GraphFonc::get_all_possible_times(graph[*it], graph);
+                    GraphFonc::get_all_possible_times(graph[v], graph);
             if(possible_times.empty()) {
                 seq.score  = INT_MIN;
                 return seq;
             }
             for (vector<TimeAccessor> &possible_time : possible_times){
-                GraphProperty pos(graph[*it]);
+                GraphProperty pos(graph[v]);
                 pos.time = possible_time;
                 if(this->rollout_policy.find(pos) == this->rollout_policy.end())
                     this->rollout_policy[pos] = 100.;
-                playout_choices.push_back({*it, pos});
+                playout_choices.push_back({v, pos});
                 probas.push_back(this->rollout_policy[pos]);
             }
         }
         next_mod = random_choice(playout_choices, probas);
         graph[next_mod.v].time = next_mod.pos.time;
-        NRPA::update_graph(next_mod.v, graph);
+        to_be_processed.erase(next_mod.v);
+        NRPA::update_graph(next_mod.v, graph, to_be_processed);
         playout_choices.clear();
         probas.clear();
     }
@@ -111,7 +108,7 @@ NRPA::sequence NRPA::playout(Vertex v, Graph &graph, unsigned int &max_vertices)
     return seq;
 }
 
-void NRPA::update_graph(Vertex v, Graph &graph){
+void NRPA::update_graph(Vertex v, Graph &graph, std::unordered_set<Vertex> &v_set){
     // update teacher hours for this class
     // delete adjacent vertices with same course and sames students
     // update teacher hours for this class in adjacent vertices
@@ -131,6 +128,7 @@ void NRPA::update_graph(Vertex v, Graph &graph){
         }
     }
     for (Vertex &v : to_be_deleted){
+        v_set.erase(v);
         boost::clear_vertex(v, graph);
         boost::remove_vertex(v, graph);
     }

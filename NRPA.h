@@ -32,9 +32,9 @@ private:
     Graph possible_configuration;
 
     void init_possible_configuration();
-    static void update_graph(Vertex v, Graph &graph);
+    static void update_graph(Vertex v, Graph &graph, std::unordered_set<Vertex> &v_set);
     int get_score(Graph &graph);
-    sequence playout(Vertex v, Graph &graph, unsigned int &max_vertices);
+    sequence playout(Vertex v, Graph &graph);
     sequence update_rollout_policy(vector<sequence> &possibilities);
     playout_choice random_choice(vector<playout_choice> &choices, vector<double> &probas);
 };
