@@ -33,3 +33,6 @@ bool TimeAccessor::operator<(const TimeAccessor &time_) const{
 TimeAccessor::operator bool() const{
     return this->day != SUNDAY || this->hour != 0;
 }
+
+const map<DAY,string> days = {{MONDAY, "Lundi"},{TUESDAY, "Mardi"},
+                              {WEDNESDAY, "Mercredi"},{THURSDAY, "Jeudi"},{FRIDAY, "Vendredi"}};

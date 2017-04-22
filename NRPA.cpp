@@ -41,15 +41,11 @@ vector<Timetable> NRPA::generate(){
     vector<sequence> possibilities;
     typename boost::graph_traits<Graph>::vertex_iterator it, it_end;
     boost::tie(it, it_end) = boost::vertices(this->possible_configuration);
-    unsigned int times_added = 0;
 
-    while(times_added < boost::num_vertices(this->possible_configuration)){
-        times_added = 0;
+    while(true){
         for (boost::tie(it, it_end) = boost::vertices(this->possible_configuration) ;it != it_end ; it++){
-            if(!this->possible_configuration[*it].time.empty()) {
-                times_added++;
+            if(!this->possible_configuration[*it].time.empty())
                 continue;
-            }
             vector<vector<TimeAccessor>> possible_times = GraphFonc::get_all_possible_times(
                     this->possible_configuration[*it], this->possible_configuration);
             if(possible_times.empty())
@@ -60,6 +56,8 @@ vector<Timetable> NRPA::generate(){
                 possibilities.push_back(this->playout(*it, temp));
             }
         }
+        if(possibilities.empty())
+            break;
         sequence best_seq = this->update_rollout_policy(possibilities);
         possibilities.clear();
         this->possible_configuration[best_seq.v].time = best_seq.path.front().time;
@@ -79,16 +77,11 @@ NRPA::sequence NRPA::playout(Vertex v, Graph &graph){
     vector<double> probas;
     playout_choice next_mod;
     typename boost::graph_traits<Graph>::vertex_iterator it, it_end;
-    boost::tie(it, it_end) = boost::vertices(graph);
-    unsigned int times_added = 0;
 
-    while(boost::num_vertices(graph) > times_added){
-        times_added = 0;
+    while(true){
         for (boost::tie(it, it_end) = boost::vertices(graph) ; it != it_end ; it++){
-            if(!graph[*it].time.empty()) {
-                times_added++;
+            if(!graph[*it].time.empty())
                 continue;
-            }
             vector<vector<TimeAccessor>> possible_times =
                     GraphFonc::get_all_possible_times(graph[*it], graph);
             if(possible_times.empty()) {
@@ -104,9 +97,11 @@ NRPA::sequence NRPA::playout(Vertex v, Graph &graph){
                 probas.push_back(this->rollout_policy[pos]);
             }
         }
+        if (playout_choices.empty())
+            break;
         next_mod = random_choice(playout_choices, probas);
         graph[next_mod.v].time = next_mod.pos.time;
-        seq.path.push_back(graph[v]);
+        seq.path.push_back(graph[next_mod.v]);
         NRPA::update_graph(next_mod.v, graph);
         playout_choices.clear();
         probas.clear();

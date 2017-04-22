@@ -25,6 +25,7 @@ private:
 public:
     static vector<Timetable> get_timetables_from_graph(Graph &graph, DataProvider &provider);
     static int evaluate(vector<Timetable> tables, DataProvider &provider);
+    static void create_excel(vector<Timetable> timetables, DataProvider &provider);
 
     Timetable(std::shared_ptr<Students> students_ = std::shared_ptr<Students>());
 };

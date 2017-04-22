@@ -11,7 +11,7 @@ namespace GraphFonc {
         vector<vector<TimeAccessor>> possible_times;
         unsigned int hours = pos.course->hours_number / pos.course->type;
         for (unsigned int i = 0; i <= pos.teacher->horaires.size() - hours; ++i) {
-            int j;
+            unsigned int j;
             vector<TimeAccessor> possible_time = {};
             possible_time.push_back(pos.teacher->horaires[i]);
             for (j = 1; j < hours; ++j) {

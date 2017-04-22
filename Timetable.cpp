@@ -3,6 +3,7 @@
 //
 
 #include "Timetable.h"
+#include "ExcelFormat/ExcelFormat.h"
 
 Timetable::Timetable(std::shared_ptr<Students> students_) : students(students_) {}
 
@@ -58,3 +59,19 @@ int Timetable::evaluate(vector<Timetable> tables, DataProvider &provider){
 }
 
 //TODO : add classroom managment using Time.courses_number
+
+void Timetable::create_excel(vector<Timetable> timetables, DataProvider &provider){
+    ExcelFormat::BasicExcel e;
+    ExcelFormat::BasicExcelWorksheet* sheet;
+    ExcelFormat::BasicExcelCell* cell;
+    e.New(timetables.size());
+    for (int i = 0; i < timetables.size(); ++i) {
+        sheet = e.GetWorksheet(i);
+        if(sheet){
+            for(auto &day : Time::days)
+                sheet->Cell(0,day.first)->SetString(day.second.c_str());
+
+            e.RenameWorksheet(i, static_cast<string>(*timetables[i].students).c_str());
+        }
+    }
+}
