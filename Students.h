@@ -6,12 +6,13 @@
 #define TIMETABLE_GENERATOR_STUDENTS_H
 
 #include <vector>
-#include <map>
+#include <string>
 #include <boost/functional/hash_fwd.hpp>
 #include <boost/shared_ptr.hpp>
 #include "Course.h"
 
 using std::vector;
+using std::string;
 
 class Students {
 public:

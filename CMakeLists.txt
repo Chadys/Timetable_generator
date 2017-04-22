@@ -9,5 +9,5 @@ add_subdirectory(ExcelFormat)
 
 
 set(SOURCE_FILES main.cpp Students.cpp Students.h Course.cpp Course.h Teacher.cpp Teacher.h Time.cpp Time.h Classroom.cpp Classroom.h DataProvider.cpp DataProvider.h Graph.h Graph.cpp Timetable.cpp Timetable.h NRPA.cpp NRPA.h GraphProperty.cpp GraphProperty.h)
-add_executable(Timetable_Generator ${SOURCE_FILES} ${EXCEL_FORMAT_SOURCE_FILES})
+add_executable(Timetable_Generator ${SOURCE_FILES})
 target_link_libraries(Timetable_Generator ExcelFormat)

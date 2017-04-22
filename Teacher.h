@@ -20,7 +20,7 @@ public:
     vector<TimeAccessor> horaires;
     map<std::shared_ptr<Course>, unsigned int> time_by_course;
 
-    Teacher(string name_="", vector<TimeAccessor> horaires_ = {}, map<std::shared_ptr<Course>, unsigned int> time_by_course_ = {});
+    Teacher(string name_= "", vector<TimeAccessor> horaires_ = {}, map<std::shared_ptr<Course>, unsigned int> time_by_course_ = {});
     bool operator==(const Teacher& teacher_) const;
 };
 

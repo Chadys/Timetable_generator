@@ -36,7 +36,6 @@ public:
     bool operator==(const Time &time_) const;
     bool operator!=(const Time &time_) const;
     bool operator<(const Time &time_) const;
-    explicit operator bool() const;
 };
 
 struct TimeAccessor{

@@ -8,6 +8,12 @@
 
 #include "Graph.h"
 #include "DataProvider.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wextra"
+#pragma GCC diagnostic ignored "-Wall"
+#include "ExcelFormat/ExcelFormat.h"
+#pragma GCC diagnostic pop
+
 
 class Timetable {
 private:
@@ -23,7 +29,7 @@ private:
     map<TimeAccessor, Period> periods;
 
 public:
-    static vector<Timetable> get_timetables_from_graph(Graph &graph, DataProvider &provider);
+    static vector<Timetable> get_timetables_from_graph(Graph &graph);
     static int evaluate(vector<Timetable> tables, DataProvider &provider);
     static void create_excel(vector<Timetable> timetables, DataProvider &provider);
 

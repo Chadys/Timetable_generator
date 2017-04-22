@@ -47,7 +47,7 @@ vector<Timetable> NRPA::generate(){
             if(!this->possible_configuration[*it].time.empty())
                 continue;
             vector<vector<TimeAccessor>> possible_times = GraphFonc::get_all_possible_times(
-                    this->possible_configuration[*it], this->possible_configuration);
+                    *it, this->possible_configuration);
             if(possible_times.empty())
                 return vector<Timetable>();
             for (vector<TimeAccessor> &possible_time : possible_times){
@@ -64,9 +64,9 @@ vector<Timetable> NRPA::generate(){
         NRPA::update_graph(best_seq.v, this->possible_configuration);
     }
     if (boost::num_vertices(this->possible_configuration) <
-            GraphFonc::get_max_vertices(this->possible_configuration, this->provider))
+            GraphFonc::get_final_n_vertices(this->provider))
         return vector<Timetable>();
-    return Timetable::get_timetables_from_graph(this->possible_configuration, this->provider);
+    return Timetable::get_timetables_from_graph(this->possible_configuration);
 }
 
 NRPA::sequence NRPA::playout(Vertex v, Graph &graph){
@@ -83,7 +83,7 @@ NRPA::sequence NRPA::playout(Vertex v, Graph &graph){
             if(!graph[*it].time.empty())
                 continue;
             vector<vector<TimeAccessor>> possible_times =
-                    GraphFonc::get_all_possible_times(graph[*it], graph);
+                    GraphFonc::get_all_possible_times(*it, graph);
             if(possible_times.empty()) {
                 seq.score  = INT_MIN;
                 return seq;
@@ -119,7 +119,7 @@ void NRPA::update_graph(Vertex v, Graph &graph){
     vector<Vertex> to_be_deleted; //because of iterator invalidation
     for (auto pair_it = boost::adjacent_vertices(v, graph); pair_it.first != pair_it.second ; ++pair_it.first) {
         if (graph[*pair_it.first].students == graph[v].students){
-            //teacher already chosen for that course
+            //course already planned
             //or disallow having the same teacher in different subjects
             if(graph[*pair_it.first].course == graph[v].course || graph[*pair_it.first].teacher == graph[v].teacher)
                 to_be_deleted.push_back(*pair_it.first);
@@ -187,6 +187,8 @@ NRPA::playout_choice NRPA::random_choice(vector<playout_choice> &choices, vector
 }
 
 int NRPA::get_score(Graph &graph){
-    vector<Timetable> timetables = Timetable::get_timetables_from_graph(graph, this->provider);
+    if (boost::num_vertices(graph) < GraphFonc::get_final_n_vertices(this->provider))
+        return INT_MIN;
+    vector<Timetable> timetables = Timetable::get_timetables_from_graph(graph);
     return Timetable::evaluate(timetables, this->provider);
 }
