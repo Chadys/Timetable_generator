@@ -19,13 +19,13 @@ void NRPA::init_possible_configuration(){
             for (auto &t : this->provider.all_teachers)
                 if (t.second->time_by_course.find(c) != t.second->time_by_course.end())
                     teachers_map[t.second->name].push_back(
-                            boost::add_vertex(GraphProperty(c, s.second, t.second), this->possible_configuration));
+                            boost::add_vertex(VertexProperty(c, s.second, t.second), this->_g));
         // Link between all vertices having the same students
-        last = boost::num_vertices(this->possible_configuration);
+        last = boost::num_vertices(this->_g);
         for (unsigned int i = first; i < last-1; ++i)
             for (unsigned int j = i+1; j < last; ++j) {
-                auto it = boost::vertices(this->possible_configuration).first;
-                boost::add_edge(*std::next(it,i), *std::next(it,j), this->possible_configuration);
+                auto it = boost::vertices(this->_g).first;
+                boost::add_edge(*std::next(it,i), *std::next(it,j), this->_g);
             };
         first = last;
     }
@@ -33,26 +33,26 @@ void NRPA::init_possible_configuration(){
     for (auto &v : teachers_map){
         for (unsigned int i = 0; i < v.second.size()-1; ++i)
             for (unsigned int j = i+1; j < v.second.size(); ++j)
-                boost::add_edge(v.second[i], v.second[j], this->possible_configuration);
+                boost::add_edge(v.second[i], v.second[j], this->_g);
     }
+    this->_g[graph_bundle] = boost::num_vertices(this->_g);
 }
 
 vector<Timetable> NRPA::generate(){
     vector<sequence> possibilities;
-    typename boost::graph_traits<Graph>::vertex_iterator it, it_end;
-    boost::tie(it, it_end) = boost::vertices(this->possible_configuration);
+    Graph g(this->_g, boost::keep_all(), NotDeleted(this->_g));
+    FilterGraph filter(this->_g, boost::keep_all(), NotValidated(this->_g));
+    typename boost::graph_traits<FilterGraph>::vertex_iterator it, it_end;
 
     while(true){
-        for (boost::tie(it, it_end) = boost::vertices(this->possible_configuration) ;it != it_end ; it++){
-            if(!this->possible_configuration[*it].time.empty())
-                continue;
-            vector<vector<TimeAccessor>> possible_times = GraphFonc::get_all_possible_times(
-                    *it, this->possible_configuration);
+        for (boost::tie(it, it_end) = boost::vertices(filter) ;it != it_end ; it++){
+            vector<vector<TimeAccessor>> possible_times = GraphFonc::get_all_possible_times(*it, g);
             if(possible_times.empty())
                 return vector<Timetable>();
             for (vector<TimeAccessor> &possible_time : possible_times){
-                Graph temp(this->possible_configuration);
+                FullGraph temp(this->_g);
                 temp[*it].time = possible_time;
+                // TODO : do N playouts
                 possibilities.push_back(this->playout(*it, temp));
             }
         }
@@ -60,26 +60,27 @@ vector<Timetable> NRPA::generate(){
             break;
         sequence best_seq = this->update_rollout_policy(possibilities);
         possibilities.clear();
-        this->possible_configuration[best_seq.v].time = best_seq.path.front().time;
-        NRPA::update_graph(best_seq.v, this->possible_configuration);
+        this->_g[best_seq.v].time = best_seq.path.front().time;
+        NRPA::update_graph(best_seq.v, g);
     }
-    if (boost::num_vertices(this->possible_configuration) <
-            GraphFonc::get_final_n_vertices(this->provider))
+    if (this->_g[graph_bundle] < GraphFonc::get_final_n_vertices(this->provider))
         return vector<Timetable>();
-    return Timetable::get_timetables_from_graph(this->possible_configuration);
+    return Timetable::get_timetables_from_graph(g);
 }
 
-NRPA::sequence NRPA::playout(Vertex v, Graph &graph){
+NRPA::sequence NRPA::playout(Vertex v, FullGraph &g){
+    Graph graph(g, boost::keep_all(), NotDeleted(g));
+    FilterGraph filter(g, boost::keep_all(), NotValidated(g));
     sequence seq;
     seq.v = v;
     seq.path.push_back(graph[v]);
     vector<playout_choice> playout_choices;
     vector<double> probas;
     playout_choice next_mod;
-    typename boost::graph_traits<Graph>::vertex_iterator it, it_end;
+    typename boost::graph_traits<FilterGraph>::vertex_iterator it, it_end;
 
     while(true){
-        for (boost::tie(it, it_end) = boost::vertices(graph) ; it != it_end ; it++){
+        for (boost::tie(it, it_end) = boost::vertices(filter) ; it != it_end ; it++){
             if(!graph[*it].time.empty())
                 continue;
             vector<vector<TimeAccessor>> possible_times =
@@ -89,7 +90,7 @@ NRPA::sequence NRPA::playout(Vertex v, Graph &graph){
                 return seq;
             }
             for (vector<TimeAccessor> &possible_time : possible_times){
-                GraphProperty pos(graph[*it]);
+                VertexProperty pos(graph[*it]);
                 pos.time = possible_time;
                 if(this->rollout_policy.find(pos) == this->rollout_policy.end())
                     this->rollout_policy[pos] = 100.;
@@ -133,8 +134,8 @@ void NRPA::update_graph(Vertex v, Graph &graph){
         }
     }
     for (Vertex &v_del : to_be_deleted){
-        boost::clear_vertex(v_del, graph);
-        boost::remove_vertex(v_del, graph);
+        graph[graph_bundle]--;
+        graph[v_del].deleted = true;
     }
 }
 
@@ -146,7 +147,7 @@ NRPA::sequence NRPA::update_rollout_policy(vector<sequence> &possibilities){
     vector<sequence> bests;
     for (sequence &possibility : possibilities){
         if(possibility.score == INT_MIN){
-            for(GraphProperty &pos : possibility.path){
+            for(VertexProperty &pos : possibility.path){
                 double proba = this->rollout_policy[pos];
                 if(proba > 99.)
                     proba -=0.1;
@@ -165,7 +166,7 @@ NRPA::sequence NRPA::update_rollout_policy(vector<sequence> &possibilities){
         }
     }
     for (sequence &best : bests)
-        for(GraphProperty &pos : best.path){
+        for(VertexProperty &pos : best.path){
             double proba = this->rollout_policy[pos];
             if(proba < 101.)
                 proba +=0.1;
@@ -175,6 +176,7 @@ NRPA::sequence NRPA::update_rollout_policy(vector<sequence> &possibilities){
                 proba +=0.05;
             this->rollout_policy[pos] = proba;
         };
+    assert(bests.size());
     std::uniform_int_distribution<unsigned int> dis(0,bests.size()-1);
     return bests[dis(this->rand_gen)];
 }
@@ -187,7 +189,7 @@ NRPA::playout_choice NRPA::random_choice(vector<playout_choice> &choices, vector
 }
 
 int NRPA::get_score(Graph &graph){
-    if (boost::num_vertices(graph) < GraphFonc::get_final_n_vertices(this->provider))
+    if (graph[graph_bundle] < GraphFonc::get_final_n_vertices(this->provider))
         return INT_MIN;
     vector<Timetable> timetables = Timetable::get_timetables_from_graph(graph);
     return Timetable::evaluate(timetables, this->provider);

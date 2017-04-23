@@ -65,8 +65,12 @@ namespace GraphFonc {
 
     void print_graph(const Graph &g){
         typename boost::graph_traits<Graph>::vertex_iterator it, it_end;
-        for (boost::tie(it, it_end) = boost::vertices(g) ; it != it_end ; it++ )
-            std::cout << ((string)*g[*it].students) << " " << g[*it].course->title << ' ' << g[*it].teacher->name << std::endl;
+        for (boost::tie(it, it_end) = boost::vertices(g) ; it != it_end ; it++ ) {
+            std::cout << ((string) *g[*it].students) << " " << g[*it].course->title << ' ' << g[*it].teacher->name;
+            for(TimeAccessor t : g[*it].time)
+                std::cout << Time::days.at(t.day) << " " << t.hour;
+            std::cout << std::endl;
+        }
         std::cout << std::endl << std::endl;
     }
 }

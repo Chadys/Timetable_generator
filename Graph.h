@@ -7,14 +7,42 @@
 
 #include <vector>
 #include <boost/graph/adjacency_list.hpp>
-#include "GraphProperty.h"
+#include <boost/graph/filtered_graph.hpp>
+#include "VertexProperty.h"
 #include "DataProvider.h"
 
 using std::vector;
+using boost::graph_bundle;
 
-typedef boost::adjacency_list<boost::setS, boost::vecS, boost::undirectedS, GraphProperty> Graph;
-typedef boost::graph_traits<Graph>::edge_descriptor Edge;
-typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
+typedef boost::adjacency_list<boost::setS, boost::vecS, boost::undirectedS,
+        VertexProperty, boost::no_property, unsigned int> FullGraph;
+// the unsigned int is the size of the graph with deleted vertices
+typedef boost::graph_traits<FullGraph>::vertex_descriptor Vertex;
+
+class NotDeleted {
+public:
+    NotDeleted() : _g(nullptr) {}
+    NotDeleted(FullGraph& graph) : _g(&graph) {}
+    bool operator()(const FullGraph::vertex_descriptor v_id) const {
+        return !(*_g)[v_id].deleted;
+    }
+private:
+    FullGraph* _g;
+};
+
+class NotValidated {
+public:
+    NotValidated() : _g(nullptr) {}
+    NotValidated(FullGraph& graph) : _g(&graph) {}
+    bool operator()(const FullGraph::vertex_descriptor v_id) const {
+        return !(*_g)[v_id].deleted && (*_g)[v_id].time.empty();
+    }
+private:
+    FullGraph* _g;
+};
+
+typedef boost::filtered_graph<FullGraph, boost::keep_all, NotDeleted> Graph;
+typedef boost::filtered_graph<FullGraph, boost::keep_all, NotValidated> FilterGraph;
 
 namespace GraphFonc{
     vector<vector<TimeAccessor>> get_all_possible_times(Vertex pos, Graph &graph);

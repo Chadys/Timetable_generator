@@ -18,23 +18,23 @@ public:
 private:
     struct sequence{
         Vertex v;
-        vector<GraphProperty> path;
+        vector<VertexProperty> path;
         int score;
     };
     struct playout_choice{
         Vertex v;
-        GraphProperty pos;
+        VertexProperty pos;
     };
 
     DataProvider &provider;
-    std::unordered_map<GraphProperty, double> rollout_policy;
+    std::unordered_map<VertexProperty, double> rollout_policy;
     std::mt19937 rand_gen;
-    Graph possible_configuration;
+    FullGraph _g;
 
     void init_possible_configuration();
     static void update_graph(Vertex v, Graph &graph);
     int get_score(Graph &graph);
-    sequence playout(Vertex v, Graph &graph);
+    sequence playout(Vertex v, FullGraph &g);
     sequence update_rollout_policy(vector<sequence> &possibilities);
     playout_choice random_choice(vector<playout_choice> &choices, vector<double> &probas);
 };
