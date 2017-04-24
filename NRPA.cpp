@@ -3,7 +3,7 @@
 //
 
 #include "NRPA.h"
-unsigned short NRPA::N_PLAYOUT=1;
+unsigned short NRPA::N_PLAYOUT=2;
 
 NRPA::NRPA(DataProvider &provider_) : provider(provider_) {
     std::random_device rd;

@@ -37,6 +37,10 @@ int Timetable::evaluate(const vector<Timetable> &tables, DataProvider &provider)
         Period last_period;
         for (auto &kv : t.periods){
             if(last_time){
+                if (last_period.course == kv.second.course){
+                    //same successive course
+                    score += MALUS_SAME_COURSE_CONSECUTIVE;
+                }
                 if (last_time.day != kv.first.day) {
                     //if only one course in a day
                     if(one_course)
