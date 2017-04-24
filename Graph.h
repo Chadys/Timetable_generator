@@ -47,8 +47,8 @@ typedef boost::filtered_graph<FullGraph, boost::keep_all, NotValidated> FilterGr
 namespace GraphFonc{
     vector<vector<TimeAccessor>> get_all_possible_times(Vertex pos, Graph &graph);
     unsigned int get_final_n_vertices(DataProvider &provider);
-    void print_graph(const FullGraph &g);
-    void print_graph(const Graph &g);
-    void print_graph(const FilterGraph &g);
+    void print_graph(const FullGraph &g, DataProvider &provider);
+    void print_graph(const Graph &g, DataProvider &provider);
+    void print_graph(const FilterGraph &g, DataProvider &provider);
 }
 #endif //TIMETABLE_GENERATOR_GRAPH_H

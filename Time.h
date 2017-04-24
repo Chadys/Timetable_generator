@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <boost/functional/hash_fwd.hpp>
 #include "Classroom.h"
 
 using std::vector;
@@ -29,7 +30,6 @@ public:
     DAY day;
     unsigned short hour;
     vector<Classroom> classrooms;
-    unsigned short courses_number;
     static const map<DAY,string> days;
 
     Time(DAY day_, unsigned short hour_, vector<Classroom> classrooms_ = {});
@@ -46,5 +46,19 @@ struct TimeAccessor{
     bool operator==(const TimeAccessor &time_) const;
     bool operator<(const TimeAccessor &time_) const;
 };
+
+namespace std
+{
+    template <>
+    struct hash<TimeAccessor>
+    {
+        size_t operator()( const TimeAccessor& ta) const {
+            std::size_t seed = 0;
+            boost::hash_combine(seed, ta.day);
+            boost::hash_combine(seed, ta.hour);
+            return seed;
+        }
+    };
+}
 
 #endif //TIMETABLE_GENERATOR_TIME_H

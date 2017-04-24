@@ -63,7 +63,7 @@ namespace GraphFonc {
         return result;
     }
 
-    void print_graph(const Graph &g){
+    void print_graph(const Graph &g, DataProvider &provider){
         typename boost::graph_traits<Graph>::vertex_iterator it, it_end;
         for (boost::tie(it, it_end) = boost::vertices(g) ; it != it_end ; it++ ) {
             std::cout << ((string) *g[*it].students) << " | " << g[*it].course->title << " | " << g[*it].teacher->name << " |";
@@ -73,7 +73,7 @@ namespace GraphFonc {
         }
         std::cout << std::endl << std::endl;
     }
-    void print_graph(const FullGraph &g){
+    void print_graph(const FullGraph &g, DataProvider &provider){
         typename boost::graph_traits<FullGraph>::vertex_iterator it, it_end;
         for (boost::tie(it, it_end) = boost::vertices(g) ; it != it_end ; it++ ) {
             std::cout << ((string) *g[*it].students) << " | " << g[*it].course->title << " | " << g[*it].teacher->name << " |";
@@ -83,12 +83,12 @@ namespace GraphFonc {
         }
         std::cout << std::endl << std::endl;
     }
-    void print_graph(const FilterGraph &g){
+    void print_graph(const FilterGraph &g, DataProvider &provider){
         typename boost::graph_traits<FilterGraph>::vertex_iterator it, it_end;
         for (boost::tie(it, it_end) = boost::vertices(g) ; it != it_end ; it++ ) {
             std::cout << ((string) *g[*it].students) << " | " << g[*it].course->title << " | " << g[*it].teacher->name << " |";
             for(TimeAccessor t : g[*it].time)
-                std::cout << " " << Time::days.at(t.day) << " " << t.hour;
+                std::cout << " " << Time::days.at(t.day) << " " << provider.all_times[t.day][t.hour].hour;
             std::cout << std::endl;
         }
         std::cout << std::endl << std::endl;

@@ -5,7 +5,7 @@
 #include "Time.h"
 
 Time::Time(DAY day_, unsigned short hour_, vector<Classroom> classrooms_) :
-    day(day_), hour(hour_), classrooms(classrooms_), courses_number(0) {}
+    day(day_), hour(hour_), classrooms(classrooms_) {}
 
 TimeAccessor::TimeAccessor(DAY day_, unsigned short hour_) : day(day_), hour(hour_) {}
 

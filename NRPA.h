@@ -31,12 +31,13 @@ private:
     std::unordered_map<VertexProperty, double> rollout_policy;
     std::mt19937 rand_gen;
     FullGraph _g;
+    unordered_map<TimeAccessor, unsigned short> nb_classrooms_left;
     static unsigned short N_PLAYOUT;
 
     void init_possible_configuration();
-    static void update_graph(Vertex v, Graph &graph);
+    void update_graph(Vertex v, Graph &graph, unordered_map<TimeAccessor, unsigned short> &u_nb_classrooms_left); //map ref for update
     int get_score(Graph &graph);
-    sequence playout(Vertex v, FullGraph &g);
+    sequence playout(Vertex v, FullGraph &g, unordered_map<TimeAccessor, unsigned short> p_nb_classrooms_left); //map copy for new data
     sequence update_rollout_policy(vector<sequence> &possibilities);
     playout_choice random_choice(vector<playout_choice> &choices, vector<double> &probas);
     void lock_unmovable_teachers();

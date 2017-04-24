@@ -59,7 +59,7 @@ vector<Timetable> NRPA::generate(){
                 for (int _ = 0; _ < this->N_PLAYOUT; ++_) {
                     FullGraph temp(this->_g);
                     temp[*it].time = possible_time;
-                    possibilities.push_back(this->playout(*it, temp));
+                    possibilities.push_back(this->playout(*it, temp, this->nb_classrooms_left));
                 }
             }
         }
@@ -70,20 +70,22 @@ vector<Timetable> NRPA::generate(){
             return vector<Timetable>();
         possibilities.clear();
         this->_g[best_seq.v].time = best_seq.path.front().time;
-        NRPA::update_graph(best_seq.v, g);
+        NRPA::update_graph(best_seq.v, g, this->nb_classrooms_left);
     }
     if (this->_g[graph_bundle] < GraphFonc::get_final_n_vertices(this->provider))
         return vector<Timetable>();
     return Timetable::get_timetables_from_graph(g);
 }
 
-NRPA::sequence NRPA::playout(Vertex v, FullGraph &g){
+NRPA::sequence NRPA::playout(Vertex v, FullGraph &g, unordered_map<TimeAccessor, unsigned short> p_nb_classrooms_left){
+
     Graph graph(g, boost::keep_all(), NotDeleted(g));
     FilterGraph filter(g, boost::keep_all(), NotValidated(g));
-    NRPA::update_graph(v, graph);
+    NRPA::update_graph(v, graph, p_nb_classrooms_left);
     sequence seq;
     seq.v = v;
     seq.path.push_back(graph[v]);
+
     vector<playout_choice> playout_choices;
     vector<double> probas;
     playout_choice next_mod;
@@ -113,7 +115,7 @@ NRPA::sequence NRPA::playout(Vertex v, FullGraph &g){
         next_mod = random_choice(playout_choices, probas);
         graph[next_mod.v].time = next_mod.pos.time;
         seq.path.push_back(graph[next_mod.v]);
-        NRPA::update_graph(next_mod.v, graph);
+        NRPA::update_graph(next_mod.v, graph, p_nb_classrooms_left);
         playout_choices.clear();
         probas.clear();
     }
@@ -121,7 +123,7 @@ NRPA::sequence NRPA::playout(Vertex v, FullGraph &g){
     return seq;
 }
 
-void NRPA::update_graph(Vertex v, Graph &graph){
+void NRPA::update_graph(Vertex v, Graph &graph, unordered_map<TimeAccessor, unsigned short> &u_nb_classrooms_left){
     // update teacher hours for this class
     // delete adjacent vertices with same course and sames students
     // update teacher hours for this class in adjacent vertices
@@ -145,6 +147,12 @@ void NRPA::update_graph(Vertex v, Graph &graph){
             else
                 graph[*pair_it.first].teacher_time_left = graph[v].teacher_time_left;
         }
+    }
+    //delete number of classroom available for each timeslot
+    for(const TimeAccessor &ta : graph[v].time){
+        if(u_nb_classrooms_left.find(ta) == u_nb_classrooms_left.end())
+            u_nb_classrooms_left[ta] = this->provider.all_times[ta.day][ta.hour].classrooms.size();
+        u_nb_classrooms_left[ta]--;
     }
 }
 
@@ -214,7 +222,7 @@ void NRPA::lock_unmovable_teachers() {
             vector<vector<TimeAccessor>> possible_times;
             if ((possible_times = GraphFonc::get_all_possible_times(*pair_it.first, g)).size() == 1){
                 g[*pair_it.first].time = possible_times.front();
-                NRPA::update_graph(*pair_it.first, g);
+                NRPA::update_graph(*pair_it.first, g, this->nb_classrooms_left);
             }
         }
     }

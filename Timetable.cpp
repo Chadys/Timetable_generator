@@ -79,16 +79,19 @@ void Timetable::create_excel(vector<Timetable> timetables, DataProvider &provide
 
     e.New(timetables.size());
 
-    //Bold&Center
+    //Bold&HCenter&Vcenter
     ExcelFormat::XLSFormatManager fmt_mgr(e);
     ExcelFormat::ExcelFont font_bold;
     font_bold._weight = 700;
-    ExcelFormat::CellFormat fmt_bold(fmt_mgr);
-    fmt_bold.set_font(font_bold);
-    fmt_bold.set_alignment(ExcelFormat::EXCEL_HALIGN_CENTRED);
-    //Center
-    ExcelFormat::CellFormat fmt_center(fmt_mgr);
-    fmt_center.set_alignment(ExcelFormat::EXCEL_HALIGN_CENTRED);
+    ExcelFormat::CellFormat fmt_title(fmt_mgr);
+    fmt_title.set_font(font_bold);
+    fmt_title.set_alignment(ExcelFormat::EXCEL_HALIGN_CENTRED | ExcelFormat::EXCEL_VALIGN_CENTRED);
+    //HCenter
+    ExcelFormat::CellFormat fmt_courses(fmt_mgr);
+    fmt_courses.set_alignment(ExcelFormat::EXCEL_HALIGN_CENTRED);
+    //VTop
+    ExcelFormat::CellFormat fmt_hours(fmt_mgr);
+    fmt_hours.set_alignment(ExcelFormat::EXCEL_VALIGN_TOP);
 
     for (unsigned int i = 0; i < timetables.size(); ++i) {
         sheet = e.GetWorksheet(i);
@@ -96,7 +99,7 @@ void Timetable::create_excel(vector<Timetable> timetables, DataProvider &provide
             // Title : Class' name
             cell = sheet->Cell(0, 0);
             cell->Set(static_cast<string>(*timetables[i].students).c_str());
-            cell->SetFormat(fmt_bold);
+            cell->SetFormat(fmt_title);
             sheet->MergeCells(0,0,2,Time::days.size()+1); //double row size for each row == merge two rows
             // Days as columns
             for(auto &day : Time::days) {
@@ -106,15 +109,17 @@ void Timetable::create_excel(vector<Timetable> timetables, DataProvider &provide
             }
             // Hours as rows
             for (unsigned int j = 0; j < provider.all_times.front().size(); ++j) {
-                sheet->Cell(j*2 + 6, 0)->Set(provider.all_times.front()[j].hour);
+                cell = sheet->Cell(j*2 + 6, 0);
+                cell->Set(provider.all_times.front()[j].hour);
                 sheet->MergeCells(j*2 + 6, 0, 2, 1);
+                cell->SetFormat(fmt_hours);
             }
             // Insert each period
             for (const auto &period : timetables[i].periods){
                 unsigned int row = period.first.hour*2+6, col = period.first.day+1;
                 cell = sheet->Cell(row, col);
                 cell->Set((period.second.course->title+"\n"+period.second.teacher->name).c_str());
-                cell->SetFormat(fmt_center);
+                cell->SetFormat(fmt_courses);
                 sheet->MergeCells(row, col, 2*(period.second.course->hours_number/period.second.course->type), 1);
             }
             e.RenameWorksheet(i, static_cast<string>(*timetables[i].students).c_str());
