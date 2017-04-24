@@ -32,7 +32,7 @@ private:
     };
 
     std::shared_ptr<Students>  students;
-    map<TimeAccessor, Period> periods;
+    unordered_map<TimeAccessor, Period> periods;
     static void add_classrooms(vector<Timetable> &timetables, DataProvider &provider);
 
 public:

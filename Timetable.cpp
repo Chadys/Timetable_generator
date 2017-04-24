@@ -133,29 +133,26 @@ void Timetable::create_excel(vector<Timetable> &timetables, DataProvider &provid
 
 void Timetable::add_classrooms(vector<Timetable> &timetables, DataProvider &provider){
     vector<vector<Time>> times(provider.all_times);
-    vector<set<Classroom>::iterator> vec_it;
-    set<Classroom>::iterator next_room;
+    Classroom next_room;
 
     for (Timetable &tt : timetables){
         for (std::pair<const TimeAccessor, Period> &period : tt.periods){
             unsigned short course_hours_left = (period.second.course->hours_number/period.second.course->type)-1;
-            for (next_room = times[period.first.day][period.first.hour].classrooms.begin();
-                 next_room != times[period.first.day][period.first.hour].classrooms.end();
-                 next_room++){
-                for (unsigned short i = 0; i < course_hours_left; ++i) {
-                    auto it = times[period.first.day][period.first.hour+i].classrooms.find(*next_room);
-                    if (it != times[period.first.day][period.first.hour+i].classrooms.end())
-                        vec_it.push_back(it);
+            for (const Classroom &c : times[period.first.day][period.first.hour].classrooms){
+                unsigned short i;
+                for (i = 1; i <= course_hours_left; ++i) {
+                    if (times[period.first.day][period.first.hour+i].classrooms.find(c) ==
+                        times[period.first.day][period.first.hour+i].classrooms.end())
+                        break;
                 }
-                if(vec_it.size() == course_hours_left)
+                if(i > course_hours_left) {
+                    next_room = c;
                     break;
-                vec_it.clear();
+                }
             }
-            period.second.classroom = *next_room;
-            times[period.first.day][period.first.hour].classrooms.erase(next_room);
-            for (unsigned short i = 0; i < course_hours_left; ++i) {
-                times[period.first.day][period.first.hour+i].classrooms.erase(vec_it[i]);
-            }
+            period.second.classroom = next_room;
+            for (unsigned short i = 0; i <= course_hours_left; ++i)
+                times[period.first.day][period.first.hour+i].classrooms.erase(next_room);
         }
     }
 }
