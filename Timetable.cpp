@@ -97,22 +97,25 @@ void Timetable::create_excel(vector<Timetable> timetables, DataProvider &provide
             cell = sheet->Cell(0, 0);
             cell->Set(static_cast<string>(*timetables[i].students).c_str());
             cell->SetFormat(fmt_bold);
-            sheet->MergeCells(0,0,1,Time::days.size()+1);
+            sheet->MergeCells(0,0,2,Time::days.size()+1); //double row size for each row == merge two rows
             // Days as columns
             for(auto &day : Time::days) {
-                sheet->Cell(2, day.first + 1)->Set(day.second.c_str());
+                sheet->Cell(4, day.first + 1)->Set(day.second.c_str());
                 sheet->SetColWidth(day.first+1, 10000);
+                sheet->MergeCells(4, day.first + 1, 2, 1);
             }
             // Hours as rows
-            for (unsigned int j = 0; j < provider.all_times.front().size(); ++j)
-                sheet->Cell(j+3, 0)->Set(provider.all_times.front()[j].hour);
+            for (unsigned int j = 0; j < provider.all_times.front().size(); ++j) {
+                sheet->Cell(j*2 + 6, 0)->Set(provider.all_times.front()[j].hour);
+                sheet->MergeCells(j*2 + 6, 0, 2, 1);
+            }
             // Insert each period
             for (const auto &period : timetables[i].periods){
-                unsigned int row = period.first.hour+3, col = period.first.day+1;
+                unsigned int row = period.first.hour*2+6, col = period.first.day+1;
                 cell = sheet->Cell(row, col);
                 cell->Set((period.second.course->title+"\n"+period.second.teacher->name).c_str());
                 cell->SetFormat(fmt_center);
-                sheet->MergeCells(row, col, period.second.course->hours_number/period.second.course->type, 1);
+                sheet->MergeCells(row, col, 2*(period.second.course->hours_number/period.second.course->type), 1);
             }
             e.RenameWorksheet(i, static_cast<string>(*timetables[i].students).c_str());
         }

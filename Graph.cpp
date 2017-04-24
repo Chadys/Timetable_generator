@@ -40,9 +40,9 @@ namespace GraphFonc {
             }
             possible_times = real_possible_times;
         }
-        //teacher can't have another course at the same time
+        //teacher and students can't have another course at the same time
         for (auto pair_it = boost::adjacent_vertices(pos, graph); pair_it.first != pair_it.second ; ++pair_it.first) {
-            if (graph[*pair_it.first].teacher == graph[pos].teacher && !graph[*pair_it.first].time.empty()){
+            if (!graph[*pair_it.first].time.empty()){
                 for (auto it = possible_times.begin() ; it != possible_times.end();){
                     //if at least one time in common
                     if(std::find_first_of(it->begin(), it->end(), graph[*pair_it.first].time.begin(),
@@ -66,9 +66,29 @@ namespace GraphFonc {
     void print_graph(const Graph &g){
         typename boost::graph_traits<Graph>::vertex_iterator it, it_end;
         for (boost::tie(it, it_end) = boost::vertices(g) ; it != it_end ; it++ ) {
-            std::cout << ((string) *g[*it].students) << " " << g[*it].course->title << ' ' << g[*it].teacher->name;
+            std::cout << ((string) *g[*it].students) << " | " << g[*it].course->title << " | " << g[*it].teacher->name << " |";
             for(TimeAccessor t : g[*it].time)
-                std::cout << Time::days.at(t.day) << " " << t.hour;
+                std::cout << " " << Time::days.at(t.day) << " " << t.hour;
+            std::cout << std::endl;
+        }
+        std::cout << std::endl << std::endl;
+    }
+    void print_graph(const FullGraph &g){
+        typename boost::graph_traits<FullGraph>::vertex_iterator it, it_end;
+        for (boost::tie(it, it_end) = boost::vertices(g) ; it != it_end ; it++ ) {
+            std::cout << ((string) *g[*it].students) << " | " << g[*it].course->title << " | " << g[*it].teacher->name << " |";
+            for(TimeAccessor t : g[*it].time)
+                std::cout << " " << Time::days.at(t.day) << " " << t.hour;
+            std::cout << std::endl;
+        }
+        std::cout << std::endl << std::endl;
+    }
+    void print_graph(const FilterGraph &g){
+        typename boost::graph_traits<FilterGraph>::vertex_iterator it, it_end;
+        for (boost::tie(it, it_end) = boost::vertices(g) ; it != it_end ; it++ ) {
+            std::cout << ((string) *g[*it].students) << " | " << g[*it].course->title << " | " << g[*it].teacher->name << " |";
+            for(TimeAccessor t : g[*it].time)
+                std::cout << " " << Time::days.at(t.day) << " " << t.hour;
             std::cout << std::endl;
         }
         std::cout << std::endl << std::endl;

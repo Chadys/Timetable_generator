@@ -3,6 +3,7 @@
 //
 
 #include "NRPA.h"
+unsigned short NRPA::N_PLAYOUT=1;
 
 NRPA::NRPA(DataProvider &provider_) : provider(provider_) {
     std::random_device rd;
@@ -36,11 +37,16 @@ void NRPA::init_possible_configuration(){
                 boost::add_edge(v.second[i], v.second[j], this->_g);
     }
     this->_g[graph_bundle] = boost::num_vertices(this->_g);
+    this->lock_unmovable_teachers();
+}
+
+Graph NRPA::get_graph(){
+    return Graph(this->_g, boost::keep_all(), NotDeleted(this->_g));
 }
 
 vector<Timetable> NRPA::generate(){
     vector<sequence> possibilities;
-    Graph g(this->_g, boost::keep_all(), NotDeleted(this->_g));
+    Graph g = this->get_graph();
     FilterGraph filter(this->_g, boost::keep_all(), NotValidated(this->_g));
     typename boost::graph_traits<FilterGraph>::vertex_iterator it, it_end;
 
@@ -50,15 +56,18 @@ vector<Timetable> NRPA::generate(){
             if(possible_times.empty())
                 return vector<Timetable>();
             for (vector<TimeAccessor> &possible_time : possible_times){
-                FullGraph temp(this->_g);
-                temp[*it].time = possible_time;
-                // TODO : do N playouts
-                possibilities.push_back(this->playout(*it, temp));
+                for (int _ = 0; _ < this->N_PLAYOUT; ++_) {
+                    FullGraph temp(this->_g);
+                    temp[*it].time = possible_time;
+                    possibilities.push_back(this->playout(*it, temp));
+                }
             }
         }
         if(possibilities.empty())
             break;
         sequence best_seq = this->update_rollout_policy(possibilities);
+        if(best_seq.score==INT_MIN)
+            return vector<Timetable>();
         possibilities.clear();
         this->_g[best_seq.v].time = best_seq.path.front().time;
         NRPA::update_graph(best_seq.v, g);
@@ -71,6 +80,7 @@ vector<Timetable> NRPA::generate(){
 NRPA::sequence NRPA::playout(Vertex v, FullGraph &g){
     Graph graph(g, boost::keep_all(), NotDeleted(g));
     FilterGraph filter(g, boost::keep_all(), NotValidated(g));
+    NRPA::update_graph(v, graph);
     sequence seq;
     seq.v = v;
     seq.path.push_back(graph[v]);
@@ -117,25 +127,24 @@ void NRPA::update_graph(Vertex v, Graph &graph){
     // update teacher hours for this class in adjacent vertices
     // delete it if teacher doesn't have anymore hours
     graph[v].teacher_time_left -= graph[v].course->hours_number;
-    vector<Vertex> to_be_deleted; //because of iterator invalidation
     for (auto pair_it = boost::adjacent_vertices(v, graph); pair_it.first != pair_it.second ; ++pair_it.first) {
         if (graph[*pair_it.first].students == graph[v].students){
             //course already planned
             //or disallow having the same teacher in different subjects
-            if(graph[*pair_it.first].course == graph[v].course || graph[*pair_it.first].teacher == graph[v].teacher)
-                to_be_deleted.push_back(*pair_it.first);
+            if(graph[*pair_it.first].course == graph[v].course || graph[*pair_it.first].teacher == graph[v].teacher){
+                graph[graph_bundle]--;
+                graph[*pair_it.first].deleted = true;
+            }
         }
         //teacher can't exceed their allotted hours for one course
         else if (graph[*pair_it.first].teacher == graph[v].teacher && graph[*pair_it.first].course == graph[v].course){
-            if(!graph[v].teacher_time_left && graph[*pair_it.first].time.empty())
-                to_be_deleted.push_back(*pair_it.first);
+            if(!graph[v].teacher_time_left && graph[*pair_it.first].time.empty()){
+                graph[graph_bundle]--;
+                graph[*pair_it.first].deleted = true;
+            }
             else
                 graph[*pair_it.first].teacher_time_left = graph[v].teacher_time_left;
         }
-    }
-    for (Vertex &v_del : to_be_deleted){
-        graph[graph_bundle]--;
-        graph[v_del].deleted = true;
     }
 }
 
@@ -176,7 +185,8 @@ NRPA::sequence NRPA::update_rollout_policy(vector<sequence> &possibilities){
                 proba +=0.05;
             this->rollout_policy[pos] = proba;
         };
-    assert(bests.size());
+    if(!bests.size())
+        return possibilities[0];
     std::uniform_int_distribution<unsigned int> dis(0,bests.size()-1);
     return bests[dis(this->rand_gen)];
 }
@@ -193,4 +203,19 @@ int NRPA::get_score(Graph &graph){
         return INT_MIN;
     vector<Timetable> timetables = Timetable::get_timetables_from_graph(graph);
     return Timetable::evaluate(timetables, this->provider);
+}
+
+void NRPA::lock_unmovable_teachers() {
+    //validate Vertex where the teacher has the same number of hours in disponibility and course
+    // (AKA no other time choice
+    Graph g = this->get_graph();
+    for (auto pair_it = boost::vertices(g); pair_it.first != pair_it.second ; ++pair_it.first) {
+        if (g[*pair_it.first].teacher->horaires.size() == g[*pair_it.first].teacher_time_left){
+            vector<vector<TimeAccessor>> possible_times;
+            if ((possible_times = GraphFonc::get_all_possible_times(*pair_it.first, g)).size() == 1){
+                g[*pair_it.first].time = possible_times.front();
+                NRPA::update_graph(*pair_it.first, g);
+            }
+        }
+    }
 }

@@ -14,6 +14,7 @@ class NRPA {
 public:
     NRPA(DataProvider &provider_);
     vector<Timetable> generate();
+    Graph get_graph();
 
 private:
     struct sequence{
@@ -30,6 +31,7 @@ private:
     std::unordered_map<VertexProperty, double> rollout_policy;
     std::mt19937 rand_gen;
     FullGraph _g;
+    static unsigned short N_PLAYOUT;
 
     void init_possible_configuration();
     static void update_graph(Vertex v, Graph &graph);
@@ -37,6 +39,7 @@ private:
     sequence playout(Vertex v, FullGraph &g);
     sequence update_rollout_policy(vector<sequence> &possibilities);
     playout_choice random_choice(vector<playout_choice> &choices, vector<double> &probas);
+    void lock_unmovable_teachers();
 };
 
 
