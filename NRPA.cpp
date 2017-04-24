@@ -52,7 +52,8 @@ vector<Timetable> NRPA::generate(){
 
     while(true){
         for (boost::tie(it, it_end) = boost::vertices(filter) ;it != it_end ; it++){
-            vector<vector<TimeAccessor>> possible_times = GraphFonc::get_all_possible_times(*it, g);
+            vector<vector<TimeAccessor>> possible_times =
+                    GraphFonc::get_all_possible_times(*it, g, this->nb_classrooms_left, this->provider);
             if(possible_times.empty())
                 return vector<Timetable>();
             for (vector<TimeAccessor> &possible_time : possible_times){
@@ -96,7 +97,7 @@ NRPA::sequence NRPA::playout(Vertex v, FullGraph &g, unordered_map<TimeAccessor,
             if(!graph[*it].time.empty())
                 continue;
             vector<vector<TimeAccessor>> possible_times =
-                    GraphFonc::get_all_possible_times(*it, graph);
+                    GraphFonc::get_all_possible_times(*it, graph, p_nb_classrooms_left, this->provider);
             if(possible_times.empty()) {
                 seq.score  = INT_MIN;
                 return seq;
@@ -149,11 +150,8 @@ void NRPA::update_graph(Vertex v, Graph &graph, unordered_map<TimeAccessor, unsi
         }
     }
     //delete number of classroom available for each timeslot
-    for(const TimeAccessor &ta : graph[v].time){
-        if(u_nb_classrooms_left.find(ta) == u_nb_classrooms_left.end())
-            u_nb_classrooms_left[ta] = this->provider.all_times[ta.day][ta.hour].classrooms.size();
+    for(const TimeAccessor &ta : graph[v].time)
         u_nb_classrooms_left[ta]--;
-    }
 }
 
 NRPA::sequence NRPA::update_rollout_policy(vector<sequence> &possibilities){
@@ -220,7 +218,8 @@ void NRPA::lock_unmovable_teachers() {
     for (auto pair_it = boost::vertices(g); pair_it.first != pair_it.second ; ++pair_it.first) {
         if (g[*pair_it.first].teacher->horaires.size() == g[*pair_it.first].teacher_time_left){
             vector<vector<TimeAccessor>> possible_times;
-            if ((possible_times = GraphFonc::get_all_possible_times(*pair_it.first, g)).size() == 1){
+            if ((possible_times = GraphFonc::get_all_possible_times(
+                    *pair_it.first, g, this->nb_classrooms_left, this->provider)).size() == 1){
                 g[*pair_it.first].time = possible_times.front();
                 NRPA::update_graph(*pair_it.first, g, this->nb_classrooms_left);
             }

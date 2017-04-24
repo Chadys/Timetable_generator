@@ -7,22 +7,35 @@
 
 namespace GraphFonc {
 
-    vector<vector<TimeAccessor>> get_all_possible_times(Vertex pos, Graph &graph) {
+    vector<vector<TimeAccessor>> get_all_possible_times(
+            Vertex pos, Graph &graph, unordered_map<TimeAccessor, unsigned short> &nb_classrooms_left,
+            DataProvider &provider) {
+        TimeAccessor ta;
         vector<vector<TimeAccessor>> possible_times;
         unsigned int hours = graph[pos].course->hours_number / graph[pos].course->type;
         for (unsigned int i = 0; i <= graph[pos].teacher->horaires.size() - hours; ++i) {
             unsigned int j;
             vector<TimeAccessor> possible_time = {};
-            possible_time.push_back(graph[pos].teacher->horaires[i]);
-            for (j = 1; j < hours; ++j) {
-                if (graph[pos].teacher->horaires[i + j].day == possible_time.back().day &&
-                    graph[pos].teacher->horaires[i + j].hour == possible_time.back().hour + 1)
-                    possible_time.push_back(graph[pos].teacher->horaires[i + j]);
-                else
-                    break;
+            ta = graph[pos].teacher->horaires[i];
+            if(nb_classrooms_left.find(ta) == nb_classrooms_left.end())
+                nb_classrooms_left[ta] = provider.all_times[ta.day][ta.hour].classrooms.size();
+            if(nb_classrooms_left[ta]) {
+                possible_time.push_back(graph[pos].teacher->horaires[i]);
+                for (j = 1; j < hours; ++j) {
+                    ta = graph[pos].teacher->horaires[i + j];
+                    if (ta.day == possible_time.back().day && ta.hour == possible_time.back().hour + 1) {
+                        if (nb_classrooms_left.find(ta) == nb_classrooms_left.end())
+                            nb_classrooms_left[ta] = provider.all_times[ta.day][ta.hour].classrooms.size();
+                        if(!nb_classrooms_left[ta])
+                            break;
+                        possible_time.push_back(graph[pos].teacher->horaires[i + j]);
+                    }
+                    else
+                        break;
+                }
+                if (j == hours)
+                    possible_times.push_back(possible_time);
             }
-            if (j == hours)
-                possible_times.push_back(possible_time);
         }
         if (graph[pos].course->type == COURS_TP) {
             vector<vector<TimeAccessor>> real_possible_times;
@@ -68,7 +81,7 @@ namespace GraphFonc {
         for (boost::tie(it, it_end) = boost::vertices(g) ; it != it_end ; it++ ) {
             std::cout << ((string) *g[*it].students) << " | " << g[*it].course->title << " | " << g[*it].teacher->name << " |";
             for(TimeAccessor t : g[*it].time)
-                std::cout << " " << Time::days.at(t.day) << " " << t.hour;
+                std::cout << " " << Time::days.at(t.day) << " " << provider.all_times[t.day][t.hour].hour << 'h';
             std::cout << std::endl;
         }
         std::cout << std::endl << std::endl;
@@ -78,7 +91,7 @@ namespace GraphFonc {
         for (boost::tie(it, it_end) = boost::vertices(g) ; it != it_end ; it++ ) {
             std::cout << ((string) *g[*it].students) << " | " << g[*it].course->title << " | " << g[*it].teacher->name << " |";
             for(TimeAccessor t : g[*it].time)
-                std::cout << " " << Time::days.at(t.day) << " " << t.hour;
+                std::cout << " " << Time::days.at(t.day) << " " << provider.all_times[t.day][t.hour].hour << 'h';
             std::cout << std::endl;
         }
         std::cout << std::endl << std::endl;
@@ -88,7 +101,7 @@ namespace GraphFonc {
         for (boost::tie(it, it_end) = boost::vertices(g) ; it != it_end ; it++ ) {
             std::cout << ((string) *g[*it].students) << " | " << g[*it].course->title << " | " << g[*it].teacher->name << " |";
             for(TimeAccessor t : g[*it].time)
-                std::cout << " " << Time::days.at(t.day) << " " << provider.all_times[t.day][t.hour].hour;
+                std::cout << " " << Time::days.at(t.day) << " " << provider.all_times[t.day][t.hour].hour << 'h';
             std::cout << std::endl;
         }
         std::cout << std::endl << std::endl;

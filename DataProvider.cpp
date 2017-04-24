@@ -38,7 +38,7 @@ void DataProvider::init_times_from_file(const char *file){
                 sstream = std::istringstream(line);
                 sstream >> hour; //jump over day
                 while (sstream >> hour)
-                    this->all_times[i][hour-first_hour].classrooms.emplace_back(building, number);
+                    this->all_times[i][hour-first_hour].classrooms.emplace(building, number);
             }
         }
     }

@@ -6,12 +6,14 @@
 #define TIMETABLE_GENERATOR_GRAPH_H
 
 #include <vector>
+#include <unordered_map>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/filtered_graph.hpp>
 #include "VertexProperty.h"
 #include "DataProvider.h"
 
 using std::vector;
+using std::unordered_map;
 using boost::graph_bundle;
 
 typedef boost::adjacency_list<boost::setS, boost::vecS, boost::undirectedS,
@@ -45,7 +47,9 @@ typedef boost::filtered_graph<FullGraph, boost::keep_all, NotDeleted> Graph;
 typedef boost::filtered_graph<FullGraph, boost::keep_all, NotValidated> FilterGraph;
 
 namespace GraphFonc{
-    vector<vector<TimeAccessor>> get_all_possible_times(Vertex pos, Graph &graph);
+    vector<vector<TimeAccessor>> get_all_possible_times(
+            Vertex pos, Graph &graph, unordered_map<TimeAccessor, unsigned short> &nb_classrooms_left,
+            DataProvider &provider);
     unsigned int get_final_n_vertices(DataProvider &provider);
     void print_graph(const FullGraph &g, DataProvider &provider);
     void print_graph(const Graph &g, DataProvider &provider);

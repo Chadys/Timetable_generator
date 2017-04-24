@@ -27,7 +27,7 @@ vector<Timetable> Timetable::get_timetables_from_graph(Graph &graph){
     return timetables_vec;
 }
 
-int Timetable::evaluate(vector<Timetable> tables, DataProvider &provider){
+int Timetable::evaluate(const vector<Timetable> &tables, DataProvider &provider){
     int score = 0;
     unsigned short used_days = 0;
     bool one_course = true;
@@ -40,7 +40,7 @@ int Timetable::evaluate(vector<Timetable> tables, DataProvider &provider){
                 if (last_time.day != kv.first.day) {
                     //if only one course in a day
                     if(one_course)
-                        score-=10;
+                        score+=MALUS_ONE_COURSE_IN_DAY;
                     one_course = true;
                     used_days++;
                 }
@@ -51,28 +51,30 @@ int Timetable::evaluate(vector<Timetable> tables, DataProvider &provider){
                         //for lunch time
                         if(last_time.hour+first_hour < 12 || kv.first.hour+first_hour > 13) {
                             if (kv.first.hour + first_hour - last_time.hour + first_hour < 2)
-                                score += 10;
+                                score += BONUS_LUNCHTIME;
+                            // too long lunch time
+                            else
+                                score += NEUTRAL_LUNCHTIME;
                         }
                         //for nothing
                         else
-                            score-=3*(kv.first.hour - last_time.hour);
+                            score+=MALUS_IDLE_HOUR*(kv.first.hour - last_time.hour);
                     }
-                    //TODO : in else, lower score if classrooms !=
                 }
             }
             last_time = kv.first;
             last_period = kv.second;
         }
         // bonus for every free day;
-        score += (4-used_days)*5;
+        score += (4-used_days)*BONUS_FREE_DAY;
         used_days = 0;
     }
     return score;
 }
 
-//TODO : add classroom managment using Time.courses_number
 
-void Timetable::create_excel(vector<Timetable> timetables, DataProvider &provider){
+void Timetable::create_excel(vector<Timetable> &timetables, DataProvider &provider){
+    Timetable::add_classrooms(timetables, provider);
     ExcelFormat::BasicExcel e;
     ExcelFormat::BasicExcelWorksheet* sheet;
     ExcelFormat::BasicExcelCell* cell;
@@ -118,7 +120,8 @@ void Timetable::create_excel(vector<Timetable> timetables, DataProvider &provide
             for (const auto &period : timetables[i].periods){
                 unsigned int row = period.first.hour*2+6, col = period.first.day+1;
                 cell = sheet->Cell(row, col);
-                cell->Set((period.second.course->title+"\n"+period.second.teacher->name).c_str());
+                cell->Set((period.second.course->title+"\n"+period.second.teacher->name+
+                        "\n"+ static_cast<string>(period.second.classroom)).c_str());
                 cell->SetFormat(fmt_courses);
                 sheet->MergeCells(row, col, 2*(period.second.course->hours_number/period.second.course->type), 1);
             }
@@ -126,4 +129,33 @@ void Timetable::create_excel(vector<Timetable> timetables, DataProvider &provide
         }
     }
     e.SaveAs("Timetables.xls");
+}
+
+void Timetable::add_classrooms(vector<Timetable> &timetables, DataProvider &provider){
+    vector<vector<Time>> times(provider.all_times);
+    vector<set<Classroom>::iterator> vec_it;
+    set<Classroom>::iterator next_room;
+
+    for (Timetable &tt : timetables){
+        for (std::pair<const TimeAccessor, Period> &period : tt.periods){
+            unsigned short course_hours_left = (period.second.course->hours_number/period.second.course->type)-1;
+            for (next_room = times[period.first.day][period.first.hour].classrooms.begin();
+                 next_room != times[period.first.day][period.first.hour].classrooms.end();
+                 next_room++){
+                for (unsigned short i = 0; i < course_hours_left; ++i) {
+                    auto it = times[period.first.day][period.first.hour+i].classrooms.find(*next_room);
+                    if (it != times[period.first.day][period.first.hour+i].classrooms.end())
+                        vec_it.push_back(it);
+                }
+                if(vec_it.size() == course_hours_left)
+                    break;
+                vec_it.clear();
+            }
+            period.second.classroom = *next_room;
+            times[period.first.day][period.first.hour].classrooms.erase(next_room);
+            for (unsigned short i = 0; i < course_hours_left; ++i) {
+                times[period.first.day][period.first.hour+i].classrooms.erase(vec_it[i]);
+            }
+        }
+    }
 }

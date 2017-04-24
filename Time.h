@@ -5,13 +5,13 @@
 #ifndef TIMETABLE_GENERATOR_TIME_H
 #define TIMETABLE_GENERATOR_TIME_H
 
-#include <vector>
+#include <set>
 #include <string>
 #include <map>
 #include <boost/functional/hash_fwd.hpp>
 #include "Classroom.h"
 
-using std::vector;
+using std::set;
 using std::string;
 using std::map;
 
@@ -29,10 +29,10 @@ class Time {
 public:
     DAY day;
     unsigned short hour;
-    vector<Classroom> classrooms;
+    set<Classroom> classrooms; //use of ordered_set to be able to give the nearest classrooms (or same) for consecutive periods
     static const map<DAY,string> days;
 
-    Time(DAY day_, unsigned short hour_, vector<Classroom> classrooms_ = {});
+    Time(DAY day_, unsigned short hour_, set<Classroom> classrooms_ = {});
     bool operator==(const Time &time_) const;
     bool operator!=(const Time &time_) const;
     bool operator<(const Time &time_) const;
