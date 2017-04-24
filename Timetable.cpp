@@ -73,7 +73,7 @@ int Timetable::evaluate(const vector<Timetable> &tables, DataProvider &provider)
 }
 
 
-void Timetable::create_excel(vector<Timetable> &timetables, DataProvider &provider){
+void Timetable::create_excel(vector<Timetable> &timetables, DataProvider &provider, const char *filename){
     Timetable::add_classrooms(timetables, provider);
     ExcelFormat::BasicExcel e;
     ExcelFormat::BasicExcelWorksheet* sheet;
@@ -128,7 +128,7 @@ void Timetable::create_excel(vector<Timetable> &timetables, DataProvider &provid
             e.RenameWorksheet(i, static_cast<string>(*timetables[i].students).c_str());
         }
     }
-    e.SaveAs("Timetables.xls");
+    e.SaveAs(filename);
 }
 
 void Timetable::add_classrooms(vector<Timetable> &timetables, DataProvider &provider){
