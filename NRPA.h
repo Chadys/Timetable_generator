@@ -32,7 +32,7 @@ private:
     std::mt19937 rand_gen;
     FullGraph _g;
     unordered_map<TimeAccessor, unsigned short> nb_classrooms_left;
-    static unsigned short N_PLAYOUT;
+    static unsigned short N_PLAYOUTS;
 
     void init_possible_configuration();
     void update_graph(Vertex v, Graph &graph, unordered_map<TimeAccessor, unsigned short> &u_nb_classrooms_left); //map ref for update

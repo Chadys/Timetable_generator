@@ -29,7 +29,7 @@ vector<Timetable> Timetable::get_timetables_from_graph(Graph &graph){
 
 int Timetable::evaluate(const vector<Timetable> &tables, DataProvider &provider){
     int score = 0;
-    unsigned short used_days = 0;
+    unsigned short used_days = 0, n_free_days;
     bool one_course = true;
     unsigned short first_hour = provider.all_times.front().front().hour;
     for (const Timetable &t : tables){
@@ -37,10 +37,6 @@ int Timetable::evaluate(const vector<Timetable> &tables, DataProvider &provider)
         Period last_period;
         for (auto &kv : t.periods){
             if(last_time){
-                if (last_period.course == kv.second.course){
-                    //same successive course
-                    score += MALUS_SAME_COURSE_CONSECUTIVE;
-                }
                 if (last_time.day != kv.first.day) {
                     //if only one course in a day
                     if(one_course)
@@ -49,6 +45,10 @@ int Timetable::evaluate(const vector<Timetable> &tables, DataProvider &provider)
                     used_days++;
                 }
                 else{
+                    if (last_period.course == kv.second.course){
+                        //same successive course
+                        score += MALUS_SAME_COURSE_CONSECUTIVE;
+                    }
                     one_course = false;
                     //if free period
                     if(kv.first.hour - last_time.hour > 1){
@@ -70,7 +70,10 @@ int Timetable::evaluate(const vector<Timetable> &tables, DataProvider &provider)
             last_period = kv.second;
         }
         // bonus for every free day;
-        score += (4-used_days)*BONUS_FREE_DAY;
+        n_free_days = (4-used_days);
+        if (!n_free_days)
+            score += MALUS_NO_FREE_DAY;
+        score += n_free_days*BONUS_PER_FREE_DAY;
         used_days = 0;
     }
     return score;

@@ -14,11 +14,12 @@
 #include "ExcelFormat/ExcelFormat.h"
 #pragma GCC diagnostic pop
 
-#define MALUS_ONE_COURSE_IN_DAY -20
+#define MALUS_ONE_COURSE_IN_DAY -100
 #define MALUS_IDLE_HOUR -3
 #define MALUS_SAME_COURSE_CONSECUTIVE -10
+#define MALUS_NO_FREE_DAY -10
 #define BONUS_LUNCHTIME 10
-#define BONUS_FREE_DAY 10
+#define BONUS_PER_FREE_DAY 10
 #define NEUTRAL_LUNCHTIME 0
 
 class Timetable {
