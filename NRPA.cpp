@@ -57,7 +57,7 @@ vector<Timetable> NRPA::generate(){
             if(possible_times.empty())
                 return vector<Timetable>();
             for (vector<TimeAccessor> &possible_time : possible_times){
-                for (int _ = 0; _ < this->N_PLAYOUT; ++_) {
+                for (int _ = 0; _ < this->N_PLAYOUTS; ++_) {
                     FullGraph temp(this->_g);
                     temp[*it].time = possible_time;
                     possibilities.push_back(this->playout(*it, temp, this->nb_classrooms_left));
